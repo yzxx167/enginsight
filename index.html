@@ -2294,37 +2294,72 @@ async function ocrLocal(b64){
 
 /* ---------- 浏览器内置 OCR：tesseract.js，资源随站点一起部署 ---------- */
 let _tess=null,_tessLoading=null,_tessProg=null,_tessPsm=null;
-/* 部署地址：只在页面自身没有 http(s) 基准地址时用作兜底（预览面板、srcdoc 等宿主） */
+/* 部署地址：页面自己取不到 ocr 资源时的兜底（预览面板只给页面、不给子资源） */
 var OCR_DEPLOY_ROOT='https://yzxx167.github.io/enginsight/';
-function ocrAsset(p){
-  /* 正常网页：用自身地址拼 ocr/ 路径。
-     被内置预览面板用 blob:/srcdoc 加载时自身地址不是有效基准（new URL 会抛 Invalid URL），
-     回退到线上部署地址——GitHub Pages 带 CORS，模型和 wasm 都能跨域取。 */
-  var bases=[location.href,document.baseURI];
-  for(var i=0;i<bases.length;i++){
-    var b=bases[i];
-    if(!b) continue;
+var _ocrAssetBase=null;   /* 实测能取到资源的那一个基准地址 */
+
+/* 候选基准地址，按优先级排：自己的地址 → 线上部署地址。
+   注意内置预览面板会把页面挂到 127.0.0.1:随机端口/static-html/<hash>/ 下，
+   地址本身合法，但那个路径下的 ocr/ 子资源一律 403，所以必须能换地址重试。 */
+function ocrAssetBases(){
+  var out=[];
+  [location.href,document.baseURI].forEach(function(b){
+    if(!b) return;
     try{
       var u=new URL(b);
-      if(u.protocol==='http:'||u.protocol==='https:') return new URL('ocr/'+p,u).href;
+      if((u.protocol==='http:'||u.protocol==='https:')&&out.indexOf(u.href)<0) out.push(u.href);
     }catch(e){}
-  }
-  return new URL('ocr/'+p,OCR_DEPLOY_ROOT).href;
+  });
+  if(out.indexOf(OCR_DEPLOY_ROOT)<0) out.push(OCR_DEPLOY_ROOT);
+  return out;
+}
+function ocrAsset(p){
+  var base=_ocrAssetBase||ocrAssetBases()[0];
+  try{ return new URL('ocr/'+p,base).href; }
+  catch(e){ return OCR_DEPLOY_ROOT+'ocr/'+p; }
+}
+/* 到候选地址上探一下 worker.min.js 到底在不在；HEAD 不支持的服务器就退回 GET */
+async function ocrBaseHasAssets(base){
+  var url;
+  try{ url=new URL('ocr/worker.min.js',base).href; }catch(e){ return false; }
+  try{
+    var r=await fetch(url,{method:'HEAD',cache:'no-store'});
+    if(r.ok) return true;
+    if(r.status===405||r.status===501){
+      var r2=await fetch(url,{cache:'no-store'});
+      if(r2.ok&&r2.body){ try{ r2.body.cancel(); }catch(e){} }
+      return r2.ok;
+    }
+    return false;
+  }catch(e){ return false; }
 }
 function loadTesseract(){
   if(window.Tesseract) return Promise.resolve(window.Tesseract);
   if(_tessLoading) return _tessLoading;
   _tessLoading=new Promise(function(res,rej){
-    const s=document.createElement('script');
-    s.src=ocrAsset('tesseract.min.js');
-    s.onload=function(){ window.Tesseract?res(window.Tesseract):rej(new Error('OCR 引擎加载异常')); };
-    s.onerror=function(){
-      _tessLoading=null;
-      const u=s.src||'';
-      try{ s.remove(); }catch(e){}
-      rej(new Error('OCR 引擎加载失败，取不到：'+u+'（可能是断网，或页面被嵌入环境限制加载外部脚本）'));
-    };
-    document.head.appendChild(s);
+    var bases=ocrAssetBases(), tried=[], i=0;
+    function tryNext(){
+      if(i>=bases.length){
+        _tessLoading=null;
+        rej(new Error('OCR 引擎加载失败：下面这些地址都取不到 ocr/tesseract.min.js\n'+
+          tried.join('\n')+'\n如果是内置预览面板，请改用浏览器打开线上地址，或双击离线版的启动脚本。'));
+        return;
+      }
+      var base=bases[i++];
+      ocrBaseHasAssets(base).then(function(ok){
+        var src=new URL('ocr/tesseract.min.js',base).href;
+        if(!ok){ tried.push('✗ '+src); return tryNext(); }
+        var s=document.createElement('script');
+        s.src=src;
+        s.onload=function(){
+          if(window.Tesseract){ _ocrAssetBase=base; res(window.Tesseract); }
+          else { tried.push('✗ '+src+'（内容不是引擎）'); tryNext(); }
+        };
+        s.onerror=function(){ try{ s.remove(); }catch(e){} tried.push('✗ '+src); tryNext(); };
+        document.head.appendChild(s);
+      });
+    }
+    tryNext();
   });
   return _tessLoading;
 }
