@@ -2256,7 +2256,23 @@ async function ocrLocal(b64){
 
 /* ---------- 浏览器内置 OCR：tesseract.js，资源随站点一起部署 ---------- */
 let _tess=null,_tessLoading=null,_tessProg=null,_tessPsm=null;
-function ocrAsset(p){ return new URL('ocr/'+p, location.href).href; }
+/* 部署地址：只在页面自身没有 http(s) 基准地址时用作兜底（预览面板、srcdoc 等宿主） */
+var OCR_DEPLOY_ROOT='https://yzxx167.github.io/enginsight/';
+function ocrAsset(p){
+  /* 正常网页：用自身地址拼 ocr/ 路径。
+     被内置预览面板用 blob:/srcdoc 加载时自身地址不是有效基准（new URL 会抛 Invalid URL），
+     回退到线上部署地址——GitHub Pages 带 CORS，模型和 wasm 都能跨域取。 */
+  var bases=[location.href,document.baseURI];
+  for(var i=0;i<bases.length;i++){
+    var b=bases[i];
+    if(!b) continue;
+    try{
+      var u=new URL(b);
+      if(u.protocol==='http:'||u.protocol==='https:') return new URL('ocr/'+p,u).href;
+    }catch(e){}
+  }
+  return new URL('ocr/'+p,OCR_DEPLOY_ROOT).href;
+}
 function loadTesseract(){
   if(window.Tesseract) return Promise.resolve(window.Tesseract);
   if(_tessLoading) return _tessLoading;
