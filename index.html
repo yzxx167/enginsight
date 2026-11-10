@@ -3,12 +3,12 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>英语讲评平台 · EngInsight</title>
+<title>高一英语课程平台</title>
 <style>
 :root{
-  --g:#4F9B84; --g-d:#2C6B58; --g-l:#E3F2EB; --g-2:#CFE7DC;
-  --ink:#1F3A31; --ink2:#4A6157; --mut:#8CA096;
-  --bg:#EDF7F1; --card:#fff; --line:#E6EFE9; --line2:#EFF6F1;
+  --g:#2F6FE4; --g-d:#1B4CA8; --g-l:#E9F1FE; --g-2:#CFE0FC;
+  --ink:#152C4A; --ink2:#44618A; --mut:#8AA0BE;
+  --bg:#EDF4FC; --card:#fff; --line:#E3EAF6; --line2:#EFF4FC;
   --sand:#FBF1DC; --sand-d:#B08A3E;
   --hand:"STKaiti","KaiTi","楷体",cursive;
   --sans:"PingFang SC","Microsoft YaHei",system-ui,-apple-system,sans-serif;
@@ -18,14 +18,14 @@
 html{font-size:var(--fs)}
 body{
   font-family:var(--sans); color:var(--ink); line-height:1.65;
-  background:linear-gradient(150deg,#E7F5EE 0%,#F7FCF8 38%,#E3F2E9 78%,#EAF6F0 100%);
+  background:linear-gradient(150deg,#E7EFFB 0%,#F8FBFF 38%,#E3EDFA 78%,#EBF3FD 100%);
   min-height:100vh; -webkit-font-smoothing:antialiased;
 }
 body::before{
   content:""; position:fixed; inset:0; pointer-events:none; z-index:0;
   background:
-    radial-gradient(600px 320px at 88% 8%, rgba(160,210,190,.28), transparent 70%),
-    radial-gradient(700px 400px at 4% 92%, rgba(178,216,200,.30), transparent 72%);
+    radial-gradient(600px 320px at 88% 8%, rgba(150,185,240,.30), transparent 70%),
+    radial-gradient(700px 400px at 4% 92%, rgba(170,200,245,.30), transparent 72%);
 }
 button,input,select,textarea{font-family:inherit;color:inherit;font-size:inherit}
 button{cursor:pointer;border:0;background:none}
@@ -46,10 +46,10 @@ svg{width:18px;height:18px;fill:none;stroke:currentColor;stroke-width:1.7;stroke
 .nav{display:flex;flex-direction:column;gap:2px;flex:1}
 .nav .item,.side .foot .item{
   display:flex;align-items:center;gap:10px;width:100%;padding:9px 11px;border-radius:10px;
-  color:#54695F;font-size:13.5px;text-align:left;transition:.16s;
+  color:#4E6489;font-size:13.5px;text-align:left;transition:.16s;
 }
 .nav .item svg,.side .foot .item svg{width:16px;height:16px;opacity:.72;flex:0 0 16px}
-.nav .item:hover,.side .foot .item:hover{background:rgba(227,242,235,.75)}
+.nav .item:hover,.side .foot .item:hover{background:rgba(233,241,254,.85)}
 .nav .item.on,.side .foot .item.on{background:var(--g-l);color:var(--g-d);font-weight:700}
 .nav .item.on svg,.side .foot .item.on svg{opacity:1}
 .nav .cnt{margin-left:auto;font-size:10.5px;background:var(--g);color:#fff;border-radius:9px;padding:1px 6px;line-height:1.5;font-style:normal}
@@ -72,7 +72,7 @@ svg{width:18px;height:18px;fill:none;stroke:currentColor;stroke-width:1.7;stroke
 .iconbtn{width:30px;height:30px;border-radius:9px;display:grid;place-items:center;color:#7A9086}
 .iconbtn:hover{background:var(--g-l);color:var(--g-d)}
 .who{margin-left:auto;display:flex;align-items:center;gap:8px;font-size:12px;color:var(--ink2)}
-.who .av{width:26px;height:26px;border-radius:50%;background:linear-gradient(140deg,#9CCEB9,#5FA890);color:#fff;display:grid;place-items:center;font-size:11px;font-weight:700}
+.who .av{width:26px;height:26px;border-radius:50%;background:linear-gradient(140deg,#9DBCF0,#3C74DC);color:#fff;display:grid;place-items:center;font-size:11px;font-weight:700}
 
 /* ================= common ================= */
 h1.pt{font-size:21px;letter-spacing:.2px;font-weight:700}
@@ -81,8 +81,8 @@ h1.pt{font-size:21px;letter-spacing:.2px;font-weight:700}
 .spacer{flex:1}
 .btn{display:inline-flex;align-items:center;gap:7px;border-radius:10px;padding:8px 15px;font-size:13px;font-weight:600;transition:.16s}
 .btn svg{width:15px;height:15px}
-.btn-g{background:var(--g);color:#fff;box-shadow:0 6px 14px rgba(79,155,132,.22)}
-.btn-g:hover{background:#468D77}
+.btn-g{background:var(--g);color:#fff;box-shadow:0 6px 16px rgba(47,111,228,.22)}
+.btn-g:hover{background:#2762D0}
 .btn-o{background:#fff;border:1px solid var(--line);color:var(--ink2)}
 .btn-o:hover{border-color:var(--g-2);color:var(--g-d)}
 .btn-soft{background:var(--g-l);color:var(--g-d)}
@@ -90,7 +90,7 @@ h1.pt{font-size:21px;letter-spacing:.2px;font-weight:700}
 .btn.sm{padding:6px 11px;font-size:12px;border-radius:9px}
 .pill{display:inline-flex;align-items:center;gap:5px;border-radius:999px;padding:6px 14px;font-size:12.5px;background:#fff;border:1px solid var(--line);color:var(--ink2)}
 .pill.on{background:var(--g-l);border-color:var(--g-2);color:var(--g-d);font-weight:700}
-.card{background:var(--card);border:1px solid var(--line);border-radius:14px;box-shadow:0 2px 10px rgba(60,110,90,.035)}
+.card{background:var(--card);border:1px solid var(--line);border-radius:14px;box-shadow:0 2px 10px rgba(40,80,150,.04)}
 .sect-t{font-size:14.5px;font-weight:700;margin:2px 0 10px}
 
 /* ================= 我的讲评 ================= */
@@ -103,8 +103,8 @@ h1.pt{font-size:21px;letter-spacing:.2px;font-weight:700}
 .mini svg{width:13px;height:13px}
 .grid3{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:16px}
 .exam{padding:16px 16px 12px;position:relative;cursor:pointer;transition:.18s;border-radius:14px}
-.exam:hover{transform:translateY(-2px);box-shadow:0 10px 24px rgba(60,110,90,.10);border-color:var(--g-2)}
-.exam .chk{position:absolute;left:14px;top:14px;width:15px;height:15px;border:1px solid #CBD9D2;border-radius:4px;display:grid;place-items:center;background:#fff}
+.exam:hover{transform:translateY(-2px);box-shadow:0 10px 26px rgba(40,80,150,.10);border-color:var(--g-2)}
+.exam .chk{position:absolute;left:14px;top:14px;width:15px;height:15px;border:1px solid #C6D6EE;border-radius:4px;display:grid;place-items:center;background:#fff}
 .exam .chk.on{background:var(--g);border-color:var(--g)}
 .exam .chk.on::after{content:"";width:7px;height:4px;border-left:2px solid #fff;border-bottom:2px solid #fff;transform:rotate(-45deg) translate(1px,-1px)}
 .exam .tt{font-size:14px;font-weight:700;margin:26px 0 4px;line-height:1.45}
@@ -124,12 +124,12 @@ h1.pt{font-size:21px;letter-spacing:.2px;font-weight:700}
 .reader .kicker{font-family:var(--hand);font-size:23px;color:var(--g-d);letter-spacing:.5px}
 .reader h2{font-size:19px;margin:4px 0 6px}
 .reader .meta2{font-size:12px;color:var(--mut);margin-bottom:18px}
-.passage{font-family:Georgia,"Times New Roman",serif;font-size:16.5px;line-height:2.05;color:#26382F;letter-spacing:.2px}
+.passage{font-family:Georgia,"Times New Roman",serif;font-size:16.5px;line-height:2.05;color:#1D3557;letter-spacing:.2px}
 .passage p+p{margin-top:14px}
 .wd{color:var(--g-d);border-bottom:1.5px solid var(--g-2);cursor:pointer;padding-bottom:1px;transition:.15s}
 .wd:hover{background:var(--g-l);border-color:var(--g)}
 .tags{display:flex;flex-wrap:wrap;gap:8px;margin-top:12px}
-.tags .w{background:#F6FBF8;border:1px solid var(--line);border-radius:8px;padding:6px 10px;font-size:12.5px;cursor:pointer}
+.tags .w{background:#F7FAFE;border:1px solid var(--line);border-radius:8px;padding:6px 10px;font-size:12.5px;cursor:pointer}
 .tags .w:hover{border-color:var(--g-2);background:var(--g-l)}
 .tags .w b{font-weight:700;margin-right:5px}
 .tags .w span{color:var(--mut);font-size:11.5px}
@@ -140,14 +140,14 @@ h1.pt{font-size:21px;letter-spacing:.2px;font-weight:700}
 .dict-head .kicker{font-family:var(--hand);font-size:24px;color:var(--g-d);line-height:1.3}
 .dict-head h1{font-family:var(--hand);font-size:33px;margin:2px 0 4px;letter-spacing:.5px;font-weight:400;color:var(--ink)}
 .dict-head .sub2{font-size:12.5px;color:var(--mut)}
-.bigsearch{display:flex;align-items:center;gap:10px;background:#fff;border:1px solid var(--line);border-radius:12px;padding:9px 10px 9px 16px;margin:18px 0 20px;box-shadow:0 4px 14px rgba(60,110,90,.04)}
+.bigsearch{display:flex;align-items:center;gap:10px;background:#fff;border:1px solid var(--line);border-radius:12px;padding:9px 10px 9px 16px;margin:18px 0 20px;box-shadow:0 4px 16px rgba(40,80,150,.05)}
 .bigsearch input{flex:1;border:0;outline:0;background:none;font-size:14px}
 .wall{display:flex;flex-wrap:wrap;gap:11px;align-items:flex-start}
 .wcard{
   background:#fff;border:1px solid var(--line);border-radius:12px;padding:11px 14px;min-width:120px;
   cursor:pointer;transition:.18s;
 }
-.wcard:hover{transform:translateY(-2px);box-shadow:0 8px 20px rgba(60,110,90,.10);border-color:var(--g-2)}
+.wcard:hover{transform:translateY(-2px);box-shadow:0 8px 22px rgba(40,80,150,.10);border-color:var(--g-2)}
 .wcard .w{font-weight:700;font-size:14px;letter-spacing:.2px}
 .wcard .d{font-size:11.5px;color:var(--mut);margin-top:2px;max-width:190px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .wcard.hl{background:var(--g-l);border-color:var(--g-2)}
@@ -164,17 +164,17 @@ h1.pt{font-size:21px;letter-spacing:.2px;font-weight:700}
 .stat .l{font-size:12px;color:var(--mut);margin-top:2px}
 .stat.a .n{color:#DD8B3E}
 .stat.b .n{color:var(--g-d)}
-.stat.c .n{color:#8BA98F}
+.stat.c .n{color:#7FA0C6}
 .cta-row{display:flex;justify-content:center;margin:6px 0 26px}
-.cta{background:var(--g);color:#fff;font-size:14.5px;font-weight:700;padding:12px 40px;border-radius:999px;box-shadow:0 10px 22px rgba(79,155,132,.26);display:inline-flex;gap:9px;align-items:center}
-.cta:hover{background:#468D77}
+.cta{background:var(--g);color:#fff;font-size:14.5px;font-weight:700;padding:12px 40px;border-radius:999px;box-shadow:0 10px 24px rgba(47,111,228,.26);display:inline-flex;gap:9px;align-items:center}
+.cta:hover{background:#2762D0}
 .cta:disabled{background:#CFDED7;box-shadow:none;cursor:not-allowed}
 table.wt{width:100%;border-collapse:collapse}
 table.wt th{text-align:left;font-size:11.5px;color:var(--mut);font-weight:600;padding:0 12px 9px;border-bottom:1px solid var(--line)}
 table.wt th:nth-child(1){width:26%}
 table.wt th:nth-child(3){width:120px;text-align:right}
 table.wt td{padding:11px 12px;border-bottom:1px solid var(--line2);font-size:13.5px;vertical-align:top}
-table.wt tr:hover td{background:#F8FCFA}
+table.wt tr:hover td{background:#F7FAFE}
 table.wt td.w{font-weight:700;letter-spacing:.2px;cursor:pointer}
 table.wt td.m{color:var(--ink2);font-size:12.5px;line-height:1.6}
 table.wt td.op{text-align:right;white-space:nowrap}
@@ -187,8 +187,8 @@ table.wt td.op{text-align:right;white-space:nowrap}
 
 /* ================= 单词漂流 ================= */
 .drift-stage{position:relative;height:min(64vh,560px);overflow:hidden;border-radius:16px;
-  background:radial-gradient(circle at 30% 20%,rgba(255,255,255,.9),rgba(240,250,245,.6) 60%,rgba(226,242,235,.75));border:1px solid var(--line)}
-.drift-stage .chip{position:absolute;background:#fff;border:1px solid var(--line);border-radius:10px;padding:7px 12px;font-size:13px;font-weight:600;color:var(--ink);box-shadow:0 4px 12px rgba(60,110,90,.06);cursor:pointer;opacity:0}
+  background:radial-gradient(circle at 30% 20%,rgba(255,255,255,.92),rgba(240,246,255,.65) 60%,rgba(226,237,252,.8));border:1px solid var(--line)}
+.drift-stage .chip{position:absolute;background:#fff;border:1px solid var(--line);border-radius:10px;padding:7px 12px;font-size:13px;font-weight:600;color:var(--ink);box-shadow:0 4px 12px rgba(40,80,150,.07);cursor:pointer;opacity:0}
 @keyframes drift-up{0%{transform:translateY(0) translateX(0);opacity:0}10%{opacity:1}90%{opacity:1}100%{transform:translateY(calc(-1 * var(--rise,520px))) translateX(22px);opacity:0}}
 .drift-tip{font-size:12px;color:var(--mut)}
 .drift-card{padding:30px;text-align:center;max-width:560px;margin:0 auto;position:absolute;inset:0}
@@ -227,10 +227,18 @@ input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:14px;heigh
 .ansrow{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-top:20px}
 .ansrow button{padding:10px 4px;border-radius:10px;font-size:12.5px;font-weight:600;border:1px solid var(--line);background:#fff;color:var(--ink2)}
 .ansrow button:hover{border-color:var(--g-2);background:var(--g-l);color:var(--g-d)}
-.prog{height:3px;border-radius:3px;background:var(--line);overflow:hidden;margin-top:16px}
-.prog i{display:block;height:100%;background:var(--g);transition:.3s}
-.toast{position:fixed;left:50%;bottom:32px;transform:translateX(-50%) translateY(14px);background:rgba(37,62,53,.94);color:#fff;font-size:12.5px;padding:9px 18px;border-radius:999px;opacity:0;transition:.25s;z-index:99;pointer-events:none;max-width:80vw}
+.spell-in{display:block;width:100%;max-width:340px;margin:16px auto 0;text-align:center;font-size:21px;letter-spacing:2px;
+  padding:10px 14px;border:1.5px solid var(--g-2);border-radius:12px;outline:0;background:#fff;font-weight:600;transition:.16s}
+.spell-in:focus{border-color:var(--g);box-shadow:0 0 0 3px rgba(47,111,228,.13)}
+.spell-in.ok{border-color:#3BA55D;color:#2E7D45;background:#F1FAF4}
+.spell-in.bad{border-color:#D9614C;color:#B8442F;background:#FDF3F1}
+.spell-fb{font-size:12.5px;margin-top:10px;min-height:20px;color:var(--ink2)}
+.spell-fb b{font-weight:700}
+.spell-meta{font-size:11.5px;color:var(--mut);margin-top:4px}
+.prog{height:3px;border-radius:3px;background:var(--line);overflow:hidden;margin-top:16px}.prog i{display:block;height:100%;background:var(--g);transition:.3s}
+.toast{position:fixed;left:50%;bottom:32px;transform:translateX(-50%) translateY(14px);background:rgba(24,45,74,.94);color:#fff;font-size:12.5px;padding:9px 18px;border-radius:999px;opacity:0;transition:.25s;z-index:99;pointer-events:none;max-width:80vw}
 .toast.on{opacity:1;transform:translateX(-50%) translateY(0)}
+.hidden{display:none!important}
 
 @media(max-width:980px){
   .app{flex-direction:column}
@@ -313,10 +321,10 @@ input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:14px;heigh
 <div class="app">
   <aside class="side">
     <div class="brand">
-      <div class="t">英语讲评平台
+      <div class="t">高一英语课程平台
         <svg viewBox="0 0 24 24"><path d="M15 6l-6 6 6 6"/></svg>
       </div>
-      <div class="e">EngInsight</div>
+      <div class="e">Grade 10 English</div>
     </div>
     <nav class="nav" id="nav"></nav>
     <div class="foot">
@@ -1082,8 +1090,9 @@ const PASSAGES = {
    状态
    ========================================================= */
 const KEY='enginsight_b12_v2';
-const DEF={lv:{},star:{},order:[],hidden:[],sel:{},
-  set:{rate:0.55,accent:'en-US',fs:100,font:'sans',dict:'builtin',api:'',ai:'builtin',auto:false,tab:'all',readUnit:'b1-WU'},view:'exams'};
+const DEF={lv:{},star:{},order:[],hidden:[],sel:{},papers:[],
+  set:{rate:0.55,accent:'en-US',fs:100,font:'sans',dict:'builtin',api:'',ai:'builtin',auto:false,tab:'all',readUnit:'b1-WU',
+       ocrUrl:'http://127.0.0.1:1224',ocrLang:'models/config_en.txt',ocrParser:'multi_para'},view:'exams'};
 let S=load();
 let view=S.view||'exams';
 let review=null;
@@ -1092,7 +1101,7 @@ function load(){
   try{
     const r=JSON.parse(localStorage.getItem(KEY));
     if(!r)return JSON.parse(JSON.stringify(DEF));
-    return {lv:r.lv||{},star:r.star||{},order:r.order||[],hidden:r.hidden||[],sel:r.sel||{},
+    return {lv:r.lv||{},star:r.star||{},order:r.order||[],hidden:r.hidden||[],sel:r.sel||{},papers:r.papers||[],
       set:Object.assign({},DEF.set,r.set||{}),view:r.view||'exams'};
   }catch(e){return JSON.parse(JSON.stringify(DEF));}
 }
@@ -1191,6 +1200,7 @@ function render(){
 function examList(){
   const base=[];
   ['b1','b2'].forEach(bk=>DATA[bk].units.forEach(u=>base.push({id:bk+'-'+u.id,bk:bk,u:u})));
+  (S.papers||[]).forEach(function(p){ base.push({id:p.id,bk:'paper',paper:p}); });
   const ord=S.order||[];
   base.sort(function(a,b){
     const ia=ord.indexOf(a.id), ib=ord.indexOf(b.id);
@@ -1203,12 +1213,22 @@ function examList(){
 }
 function vExams(){
   const cards=examList().map(function(o){
-    const ws=o.u.w.length;
     const on=S.sel[o.id]?'on':'';
+    if(o.paper){
+      const p=o.paper;
+      return '<div class="card exam" data-exam="'+o.id+'">'+
+        '<span class="chk '+on+'" data-sel="'+o.id+'"></span>'+
+        '<div class="tt">'+esc(p.name)+'<br><span style="font-weight:600;color:#5A7398;font-size:12.5px">'+esc(p.kind||'导入试卷')+' · '+p.hits+' 个课本词</span></div>'+
+        '<div class="meta">'+esc((p.preview||'').slice(0,46))+'…</div>'+
+        '<div class="foot"><span class="chip-bk" style="background:#E4EEFD;color:#2F6FE4">导入</span>'+
+        '<span class="meta" style="margin:0">'+p.words+' 词</span>'+
+        '<span class="dt">'+esc(p.date)+'</span></div></div>';
+    }
+    const ws=o.u.w.length;
     const ps=PASSAGES[o.id];
     return '<div class="card exam" data-exam="'+o.id+'">'+
       '<span class="chk '+on+'" data-sel="'+o.id+'"></span>'+
-      '<div class="tt">'+esc(o.u.name)+'<br><span style="font-weight:600;color:#6B8177;font-size:12.5px">'+esc(ps?ps.t:o.u.theme)+'</span></div>'+
+      '<div class="tt">'+esc(o.u.name)+'<br><span style="font-weight:600;color:#5A7398;font-size:12.5px">'+esc(ps?ps.t:o.u.theme)+'</span></div>'+
       '<div class="meta">'+esc(o.u.theme)+'</div>'+
       '<div class="foot"><span class="chip-bk">'+DATA[o.bk].name+'</span>'+
       '<span class="meta" style="margin:0">'+ws+' 词</span>'+
@@ -1218,7 +1238,8 @@ function vExams(){
       '<div class="sub">试卷管理、课堂讲评、词汇训练，一站完成</div></div>'+
       '<div class="spacer"></div>'+
       '<button class="btn btn-o" data-act="newblank">'+ic('plus')+' 新建空白</button>'+
-      '<button class="btn btn-g" data-act="import">'+ic('up')+' 导入试卷</button></div>'+
+      '<button class="btn btn-o" data-act="import">'+ic('up')+' 导入试卷</button>'+
+      '<button class="btn btn-g" data-act="ocr">'+ic('search')+' 截图识别</button></div>'+
     '<div class="exam-tools">'+
       '<div class="tool-input">'+ic('search')+'<input id="examSearch" placeholder="搜索标题…"></div>'+
       '<div class="spacer"></div>'+
@@ -1227,7 +1248,9 @@ function vExams(){
       '<button class="mini" data-act="top">'+ic('up')+' 置顶</button>'+
     '</div>'+
     '<div class="grid3" id="examGrid">'+cards+'</div>'+
-    '<div class="empty" id="examEmpty" style="display:none">没有匹配的讲评，试试别的关键词</div>';
+    '<div class="empty" id="examEmpty" style="display:none">没有匹配的讲评，试试别的关键词</div>'+
+    '<input type="file" id="paperInput" class="hidden" multiple accept=".pdf,.docx,.doc,.txt,.md,.csv,.html,.htm,.png,.jpg,.jpeg,.webp,.bmp">'+
+    '<input type="file" id="ocrInput" class="hidden" accept="image/*">';
 }
 
 /* ========== 2. 阅读精讲 ========== */
@@ -1286,7 +1309,7 @@ function vDict(){
   const words30=src.slice(0,30);
   const sizes=['','','big','','big',''];
   return '<div class="dict-head">'+
-      '<div class="kicker">英语试卷讲评平台</div>'+
+      '<div class="kicker">高一英语课程平台</div>'+
       '<h1>生词本，是讲评课的延伸</h1>'+
       '<div class="sub2">课堂生词一键收录，复习不中断</div>'+
     '</div>'+
@@ -1343,7 +1366,10 @@ function vTrain(){
       '<div class="card stat b"><div class="n">'+st.known+'</div><div class="l">已掌握</div></div>'+
       '<div class="card stat c"><div class="n">'+st.easy+'</div><div class="l">简单词</div></div>'+
       '<div class="card stat"><div class="n">'+st.total+'</div><div class="l">总数</div></div></div>'+
-    '<div class="cta-row"><button class="cta" data-act="review" '+(st.todo?'':'disabled')+'>'+ic('play')+' 开始复习（'+st.todo+' 个待复习）</button></div>'+
+    '<div class="cta-row" style="gap:12px;flex-wrap:wrap">'+
+      '<button class="cta" data-act="review" '+(st.todo?'':'disabled')+'>'+ic('play')+' 开始复习（'+st.todo+' 个待复习）</button>'+
+      '<button class="cta" data-act="spell" style="background:#fff;color:var(--g-d);border:1px solid var(--g-2);box-shadow:none">'+ic('train')+' 拼写训练</button>'+
+    '</div>'+
     '<div class="sect-t">全词表</div>'+
     '<div class="card" style="padding:16px 6px 6px"><table class="wt"><thead><tr><th>单词</th><th>释义</th><th>操作</th></tr></thead>'+
       '<tbody>'+(rows||'<tr><td colspan="3" class="empty">没有匹配的词条</td></tr>')+'</tbody></table></div>'+
@@ -1441,6 +1467,29 @@ function vSettings(){
         '<option value="cloud" '+(s.ai==='cloud'?'selected':'')+'>云端模型</option></select></span></div>'+
       '<div class="set-line"><span class="k">自检</span><span class="v"><button class="fsbtn" data-act="test">检查本机能力</button></span></div>'+
     '</div>'+
+    '<div class="card set-block"><h4><i></i>OCR 识别（Umi-OCR）</h4>'+
+      '<div class="set-line"><span class="k">接口地址</span><span class="v"><input type="text" id="ocrUrl" value="'+esc(s.ocrUrl||'http://127.0.0.1:1224')+'" placeholder="http://127.0.0.1:1224"></span></div>'+
+      '<div class="set-line"><span class="k">识别语言</span><span class="v"><select id="ocrLang">'+
+        '<option value="models/config_en.txt" '+((s.ocrLang||'')==='models/config_en.txt'?'selected':'')+'>English</option>'+
+        '<option value="models/config_chinese.txt" '+(s.ocrLang==='models/config_chinese.txt'?'selected':'')+'>简体中文</option>'+
+        '<option value="models/config_chinese_cht(v2).txt" '+(s.ocrLang==='models/config_chinese_cht(v2).txt'?'selected':'')+'>繁體中文</option>'+
+        '<option value="models/config_japan.txt" '+(s.ocrLang==='models/config_japan.txt'?'selected':'')+'>日本語</option>'+
+        '<option value="models/config_korean.txt" '+(s.ocrLang==='models/config_korean.txt'?'selected':'')+'>한국어</option>'+
+      '</select></span></div>'+
+      '<div class="set-line"><span class="k">排版解析</span><span class="v"><select id="ocrParser">'+
+        '<option value="multi_para" '+((s.ocrParser||'')==='multi_para'?'selected':'')+'>多栏 · 按自然段换行</option>'+
+        '<option value="multi_line" '+(s.ocrParser==='multi_line'?'selected':'')+'>多栏 · 总是换行</option>'+
+        '<option value="single_para" '+(s.ocrParser==='single_para'?'selected':'')+'>单栏 · 按自然段换行</option>'+
+        '<option value="single_line" '+(s.ocrParser==='single_line'?'selected':'')+'>单栏 · 总是换行</option>'+
+      '</select></span></div>'+
+      '<div class="set-line"><span class="k">连接状态</span><span class="v">'+
+        '<button class="fsbtn" data-act="ocr-test">测试连接</button>'+
+        '<span id="ocrState" style="font-size:11.5px;color:var(--mut)">未测试</span></span></div>'+
+      '<div class="set-line"><span class="k">怎么用</span><span class="v" style="font-size:11.5px;color:var(--mut);line-height:1.75">'+
+        '打开 Umi-OCR → 全局设置 → 勾选「HTTP 服务」并启动（默认端口 1224）。识别在你自己电脑上完成，图片不上传任何服务器。'+
+        (location.protocol==='https:'?'<br><b style="color:#C0392B">当前是线上 https 页面，浏览器会拦截对 http://127.0.0.1 的请求，OCR 用不了；把本页 HTML 下载到电脑双击打开即可正常使用。</b>':'')+
+        '</span></div>'+
+    '</div>'+
     '<div class="card set-block"><h4><i></i>数据</h4>'+
       '<div class="set-line"><span class="k">词条</span><span class="v">'+ALL().length+' 条（必修一 + 必修二，源自课本词表）</span></div>'+
       '<div class="set-line"><span class="k">学习记录</span><span class="v">待复习 '+st.todo+' · 已掌握 '+st.known+' · 简单词 '+st.easy+'</span></div>'+
@@ -1498,6 +1547,369 @@ function openWord(id){
     '</div></div></div>';
 }
 
+/* =========================================================
+   单词拼写训练
+   ========================================================= */
+let spell=null;
+
+function startSpell(list){
+  if(!list||!list.length){toast('这个词表范围里没有可拼写的词');return;}
+  const arr=list.slice().sort(function(){return Math.random()-0.5;}).slice(0,20);
+  spell={list:arr,i:0,ok:0,checked:false,correct:false};
+  drawSpell();
+}
+function spellNorm(s){
+  return String(s||'').toLowerCase().replace(/[’‘]/g,"'").replace(/\s+/g,' ').trim();
+}
+function drawSpell(){
+  const s=spell; if(!s) return;
+  if(s.i>=s.list.length){
+    const rate=s.list.length?Math.round(s.ok/s.list.length*100):0;
+    document.getElementById('layer').innerHTML='<div class="mask"><div class="sheet" style="width:min(460px,94vw);text-align:center">'+
+      '<h3>拼写完成</h3><div class="sm">共 '+s.list.length+' 个词</div>'+
+      '<div class="flash"><div class="w" style="color:var(--g-d)">'+rate+'%</div>'+
+      '<div class="tip">正确率 · 拼对 '+s.ok+' / '+s.list.length+'</div></div>'+
+      '<div class="ansrow" style="grid-template-columns:1fr 1fr">'+
+      '<button data-sp="close">回到词表</button><button data-sp="again">再来一轮</button></div></div></div>';
+    return;
+  }
+  const x=s.list[s.i];
+  const letters=(x.w.match(/[A-Za-z]/g)||[]).length;
+  const hint=x.w.slice(0,Math.max(1,Math.ceil(x.w.length/3)));
+  document.getElementById('layer').innerHTML='<div class="mask"><div class="sheet" style="width:min(520px,94vw)">'+
+    '<button class="x" data-sp="close">×</button>'+
+    '<h3>单词拼写</h3><div class="sm">'+esc(x.unitName)+' · 第 '+(s.i+1)+' / '+s.list.length+' 题 · 共 '+letters+' 个字母</div>'+
+    '<div class="flash" style="margin:20px 0 0"><div class="d" style="margin:0;font-size:16px;color:var(--ink)">'+esc(x.d)+'</div>'+
+      '<div class="spell-meta" id="spellHint">首字母：'+esc(hint)+'…</div></div>'+
+    '<input id="spellInput" class="spell-in" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" placeholder="在这里拼写">'+
+    '<div class="spell-fb" id="spellFb"></div>'+
+    '<div class="prog"><i style="width:'+Math.round(s.i/s.list.length*100)+'%"></i></div>'+
+    '<div class="ansrow" id="spellBtns">'+
+      '<button data-sp="submit">提交</button>'+
+      '<button data-sp="audio">朗读</button>'+
+      '<button data-sp="hint">提示</button>'+
+      '<button data-sp="skip">跳过</button>'+
+    '</div></div></div>';
+  const inp=document.getElementById('spellInput');
+  if(inp) setTimeout(function(){ try{inp.focus();}catch(e){} },60);
+}
+function spellCheck(){
+  const s=spell; if(!s||s.checked) return;
+  const inp=document.getElementById('spellInput');
+  const x=s.list[s.i];
+  const v=spellNorm(inp?inp.value:'');
+  if(!v){toast('先输入拼写');return;}
+  const right=spellNorm(x.w);
+  s.checked=true; s.correct=(v===right);
+  if(s.correct){ s.ok++; S.lv[x.id]=2; } else { S.lv[x.id]=1; }
+  save();
+  if(inp){ inp.classList.add(s.correct?'ok':'bad'); inp.readOnly=true; }
+  const fb=document.getElementById('spellFb');
+  if(fb){
+    fb.innerHTML=s.correct
+      ? '<span style="color:#2E7D45">✓ 拼写正确</span>'
+      : '✗ 正确拼写：<b style="color:#B8442F;letter-spacing:1px">'+esc(x.w)+'</b>';
+  }
+  const btns=document.getElementById('spellBtns');
+  if(btns) btns.innerHTML='<button data-sp="next" style="grid-column:1/-1">'+(s.i+1>=s.list.length?'看成绩':'下一题')+'（回车）</button>';
+  renderNav();
+}
+function spellNext(){
+  const s=spell; if(!s||!s.checked) return;
+  s.i++; s.checked=false; s.correct=false; drawSpell();
+}
+function spellHint(){
+  const x=spell&&spell.list[spell.i]; if(!x) return;
+  const el=document.getElementById('spellHint');
+  const show=x.w.slice(0,Math.max(2,Math.ceil(x.w.length/2)));
+  if(el) el.textContent='提示：'+show+'…（共 '+(x.w.match(/[A-Za-z]/g)||[]).length+' 个字母）';
+}
+
+/* =========================================================
+   试卷导入：PDF / Word(.docx) / txt / md / html
+   纯前端解析，不依赖任何 CDN
+   ========================================================= */
+function pickFiles(){
+  const inp=document.getElementById('paperInput');
+  if(!inp){toast('请回到「我的讲评」页再导入');return;}
+  inp.value='';
+  inp.onchange=function(){ handleFiles(Array.prototype.slice.call(inp.files)); };
+  inp.click();
+}
+
+function pickOcr(){
+  const inp=document.getElementById('ocrInput');
+  if(!inp){toast('请回到「我的讲评」页再识别');return;}
+  inp.value='';
+  inp.onchange=function(){ handleFiles(Array.prototype.slice.call(inp.files)); };
+  inp.click();
+}
+
+async function handleFiles(files){
+  if(!files||!files.length)return;
+  const isImg=function(f){return /\.(png|jpe?g|webp|bmp|gif)$/i.test(f.name);};
+  toast(files.length===1&&isImg(files[0])?'正在调用 OCR 识别…':'正在解析 '+files.length+' 个文件…');
+  let ok=0; const fail=[];
+  for(let i=0;i<files.length;i++){
+    const f=files[i];
+    try{
+      const r=await parseFile(f);
+      if(!r||!r.text||!r.text.trim()){ fail.push(f.name+'(未提取到文字)'); continue; }
+      if(r.kind==='OCR 图片'){ openOcrReview(f.name,r.text); ok++; continue; }
+      addPaper(f.name,r.text,r.kind);
+      ok++;
+    }catch(err){ fail.push(f.name+'：'+err.message); }
+  }
+  if(ok&&fail.length===0) render();
+  if(ok) toast('已处理 '+ok+' 个文件'+(fail.length?('，'+fail.length+' 个失败'):''));
+  else toast(fail[0]||'导入失败');
+}
+
+async function parseFile(file){
+  const n=file.name.toLowerCase();
+  if(/\.(png|jpe?g|webp|bmp|gif)$/.test(n)) return {text:await ocrImage(file),kind:'OCR 图片'};
+  if(/\.(txt|md|csv)$/.test(n)) return {text:await file.text(),kind:'文本'};
+  if(/\.(html|htm)$/.test(n)) return {text:htmlToText(await file.text()),kind:'网页'};
+  if(/\.docx$/.test(n)) return {text:await docxText(await file.arrayBuffer()),kind:'Word'};
+  if(/\.pdf$/.test(n)) return {text:await pdfText(await file.arrayBuffer()),kind:'PDF'};
+  if(/\.doc$/.test(n)) throw new Error('旧版 .doc 不支持，请另存为 .docx');
+  throw new Error('不支持的格式');
+}
+
+/* ---------- OCR：调用本机 Umi-OCR 的 HTTP 接口 ---------- */
+function ocrBase(){
+  return String(S.set.ocrUrl||'http://127.0.0.1:1224').replace(/\/+$/,'');
+}
+function fileToBase64(file){
+  return new Promise(function(res,rej){
+    const fr=new FileReader();
+    fr.onload=function(){ const s=String(fr.result); res(s.slice(s.indexOf(',')+1)); };
+    fr.onerror=function(){ rej(new Error('读取图片失败')); };
+    fr.readAsDataURL(file);
+  });
+}
+async function ocrImage(file){
+  const url=ocrBase();
+  const b64=await fileToBase64(file);
+  const options={'data.format':'text','tbpu.parser':S.set.ocrParser||'multi_para'};
+  if(S.set.ocrLang) options['ocr.language']=S.set.ocrLang;
+  let ctrl=null,timer=null;
+  try{
+    ctrl=new AbortController();
+    timer=setTimeout(function(){ctrl.abort();},90000);
+    const r=await fetch(url+'/api/ocr',{
+      method:'POST',
+      headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({base64:b64,options:options}),
+      signal:ctrl.signal
+    });
+    const j=await r.json();
+    if(j.code===100){
+      let txt=typeof j.data==='string'?j.data:'';
+      if(!txt&&Array.isArray(j.data)) txt=j.data.map(function(x){return x.text||x.t||'';}).join('\n');
+      if(!txt||!txt.trim()) throw new Error('图片里没有识别到文字');
+      return txt;
+    }
+    if(j.code===101) throw new Error('图片里没有识别到文字');
+    throw new Error('OCR 返回失败：'+(typeof j.data==='string'?j.data:('code '+j.code)));
+  }catch(err){
+    if(err.name==='AbortError') throw new Error('OCR 超时（90 秒），图片太大可先压缩');
+    if(err instanceof TypeError){
+      if(location.protocol==='https:' && url.indexOf('http://')===0)
+        throw new Error('线上版（https）访问本地 http 服务被浏览器拦截，请把本 HTML 下载到电脑双击打开再用 OCR');
+      throw new Error('连不上 OCR 服务，请先启动 Umi-OCR 并开启「HTTP 服务」');
+    }
+    throw err;
+  }finally{ if(timer)clearTimeout(timer); }
+}
+
+function openOcrReview(name,text){
+  document.getElementById('layer').innerHTML='<div class="mask"><div class="sheet" style="width:min(760px,95vw)">'+
+    '<button class="x" data-close="1">×</button>'+
+    '<h3>OCR 识别结果</h3>'+
+    '<div class="sm">'+esc(name)+' · 识别可能有错字，改好再生成讲评</div>'+
+    '<textarea id="ocrText" spellcheck="false" style="width:100%;height:250px;margin-top:14px;padding:12px 14px;border:1px solid var(--line);border-radius:10px;font-size:13px;line-height:1.9;outline:0;resize:vertical;background:#F7FAFE;color:var(--ink)">'+esc(text)+'</textarea>'+
+    '<div class="row" style="margin-top:14px;justify-content:flex-end;gap:8px">'+
+      '<button class="btn btn-o" data-close="1">取消</button>'+
+      '<button class="btn btn-g" data-ocr-save="'+esc(name)+'">生成讲评卡片</button>'+
+    '</div></div></div>';
+}
+
+function htmlToText(s){
+  return s.replace(/<script[\s\S]*?<\/script>/gi,' ').replace(/<style[\s\S]*?<\/style>/gi,' ')
+    .replace(/<\/(p|div|br|li|h\d|tr)>/gi,'\n').replace(/<[^>]+>/g,' ')
+    .replace(/&nbsp;/g,' ').replace(/&amp;/g,'&').replace(/&lt;/g,'<').replace(/&gt;/g,'>');
+}
+
+async function inflateBytes(bytes,fmt){
+  if(typeof DecompressionStream==='undefined') throw new Error('浏览器不支持解压，请用新版 Chrome/Edge');
+  const run=async function(f){
+    const ds=new DecompressionStream(f);
+    const st=new Blob([bytes]).stream().pipeThrough(ds);
+    return new Uint8Array(await new Response(st).arrayBuffer());
+  };
+  try{ return await run(fmt); }
+  catch(e){ if(fmt!=='deflate') return await run('deflate'); throw e; }
+}
+
+/* --- docx：本质是 zip，取 word/document.xml --- */
+async function docxText(buf){
+  const dv=new DataView(buf);
+  let eocd=-1;
+  for(let i=buf.byteLength-22;i>=Math.max(0,buf.byteLength-66000);i--){
+    if(dv.getUint32(i,true)===0x06054b50){eocd=i;break;}
+  }
+  if(eocd<0) throw new Error('文件结构异常');
+  const n=dv.getUint16(eocd+10,true), cdOff=dv.getUint32(eocd+16,true);
+  let p=cdOff, target=null;
+  for(let i=0;i<n;i++){
+    if(dv.getUint32(p,true)!==0x02014b50) break;
+    const method=dv.getUint16(p+10,true);
+    const csize=dv.getUint32(p+20,true);
+    const nameLen=dv.getUint16(p+28,true), extraLen=dv.getUint16(p+30,true), cmtLen=dv.getUint16(p+32,true);
+    const lho=dv.getUint32(p+42,true);
+    const fname=new TextDecoder().decode(new Uint8Array(buf,p+46,nameLen));
+    if(fname==='word/document.xml'){ target={method:method,csize:csize,lho:lho}; }
+    p+=46+nameLen+extraLen+cmtLen;
+    if(target) break;
+  }
+  if(!target) throw new Error('不是有效的 Word 文档');
+  const lnameLen=dv.getUint16(target.lho+26,true), lextra=dv.getUint16(target.lho+28,true);
+  const start=target.lho+30+lnameLen+lextra;
+  let data=new Uint8Array(buf,start,target.csize);
+  if(target.method!==0) data=await inflateBytes(data,'deflate-raw');
+  let xml=new TextDecoder('utf-8').decode(data);
+  xml=xml.replace(/<w:tab[^>]*\/>/g,'\t').replace(/<w:br[^>]*\/>/g,'\n').replace(/<\/w:p>/g,'\n');
+  return xml.replace(/<[^>]+>/g,'').replace(/&amp;/g,'&').replace(/&lt;/g,'<').replace(/&gt;/g,'>').replace(/&quot;/g,'"');
+}
+
+/* --- pdf：解压 FlateDecode 流，抽取文本操作符 --- */
+async function pdfText(buf){
+  const u8=new Uint8Array(buf);
+  const latin=new TextDecoder('latin1');
+  const whole=latin.decode(u8);
+  const chunks=[];
+  let idx=0, guard=0;
+  while(guard++<4000){
+    const a=whole.indexOf('stream',idx);
+    if(a<0) break;
+    let s=a+6;
+    if(whole[s]==='\r')s++;
+    if(whole[s]==='\n')s++;
+    const b=whole.indexOf('endstream',s);
+    if(b<0) break;
+    idx=b+9;
+    let data=u8.subarray(s,b);
+    while(data.length&&(data[data.length-1]===10||data[data.length-1]===13)) data=data.subarray(0,data.length-1);
+    if(!data.length) continue;
+    let out=null;
+    try{ out=await inflateBytes(data,'deflate'); }catch(e){ out=null; }
+    if(!out) continue;
+    const txt=latin.decode(out);
+    if(txt.indexOf('Tj')<0&&txt.indexOf('TJ')<0&&txt.indexOf('BT')<0) continue;
+    chunks.push(extractTextOps(txt));
+  }
+  const text=chunks.join('\n');
+  if(!text.trim()) throw new Error('扫描版 PDF 没有文字层，请用可复制文字的 PDF 或先转成 Word');
+  return text;
+}
+
+function pdfUnescape(s){
+  return s.replace(/\\([nrtbf()\\])/g,function(_,c){
+    return {n:'\n',r:'\r',t:'\t',b:'\b',f:'\f','(':'(',')':')','\\':'\\'}[c]||c;
+  }).replace(/\\([0-7]{1,3})/g,function(_,o){return String.fromCharCode(parseInt(o,8));});
+}
+
+function pdfHex(h){
+  let s=h.replace(/\s+/g,'');
+  if(s.length%2) s+='0';
+  const bytes=[];
+  for(let i=0;i<s.length;i+=2) bytes.push(parseInt(s.substr(i,2),16)||0);
+  let zeros=0;
+  for(let i=0;i<bytes.length;i+=2) if(bytes[i]===0) zeros++;
+  if(bytes.length>=4&&zeros>=bytes.length/4){
+    let out='';
+    for(let i=0;i+1<bytes.length;i+=2) out+=String.fromCharCode((bytes[i]<<8)|bytes[i+1]);
+    return out;
+  }
+  let out='';
+  for(let i=0;i<bytes.length;i++) out+=String.fromCharCode(bytes[i]);
+  return out;
+}
+
+function extractTextOps(s){
+  let out='';
+  const lines=s.split(/\r?\n/);
+  for(let i=0;i<lines.length;i++){
+    const ln=lines[i];
+    if(/^\s*ET\s*$/.test(ln)) { out+='\n'; continue; }
+    if(/(Td|TD|T\*)\s*$/.test(ln)) { out+=' '; }
+    let m, re=/\((?:\\[\s\S]|[^()\\])*\)|<([0-9A-Fa-f][0-9A-Fa-f\s]*)>/g;
+    while((m=re.exec(ln))!==null){
+      const tok=m[0];
+      if(tok.charAt(0)==='(') out+=pdfUnescape(tok.slice(1,-1));
+      else {
+        const inner=m[1]||'';
+        if(/[0-9A-Fa-f]/.test(inner)&&inner.replace(/\s/g,'').length>=2) out+=pdfHex(inner);
+      }
+    }
+    if(/\]\s*TJ|\bTj\b/.test(ln)) out+='';
+  }
+  return out.replace(/[ \t]{2,}/g,' ').replace(/\n{3,}/g,'\n\n');
+}
+
+/* --- 建卡片：与课本词表比对，生成生词清单 --- */
+function addPaper(name,text,kind){
+  const clean=text.replace(/\r/g,'').replace(/[ \t]+/g,' ').trim();
+  const toks=(clean.match(/[A-Za-z][A-Za-z'’-]*/g)||[]).map(function(w){return w.toLowerCase();});
+  const uniq={}; toks.forEach(function(w){uniq[w]=(uniq[w]||0)+1;});
+  const dict={};
+  ALL().forEach(function(x){
+    const k=x.w.toLowerCase();
+    if(/^[a-z][a-z'’-]*$/.test(k)&&k.length>2&&!dict[k]) dict[k]=x;
+  });
+  const hits=[], seen={};
+  toks.forEach(function(w){
+    if(dict[w]&&!seen[w]){ seen[w]=1; hits.push(dict[w]); }
+  });
+  const paper={
+    id:'p'+Date.now().toString(36)+Math.floor(Math.random()*1e4).toString(36),
+    name:name.replace(/\.[^.]+$/,''),
+    kind:kind||'导入',
+    words:Object.keys(uniq).length,
+    hits:hits.length,
+    preview:clean.slice(0,160),
+    text:clean.slice(0,60000),
+    list:hits.slice(0,120).map(function(x){return x.w;}),
+    date:new Date().toISOString().slice(0,10)
+  };
+  S.papers=(S.papers||[]); S.papers.unshift(paper); save();
+}
+
+function openPaper(id){
+  const p=(S.papers||[]).find(function(x){return x.id===id;});
+  if(!p){toast('找不到这份试卷');return;}
+  const all=ALL(), byW={};
+  all.forEach(function(x){ const k=x.w.toLowerCase(); if(!byW[k])byW[k]=x; });
+  const chips=(p.list||[]).map(function(w){
+    const x=byW[w]; if(!x)return '';
+    return '<div class="w" data-w="'+esc(x.w)+'" data-d="'+esc(x.d)+'"><b>'+esc(x.w)+'</b><span>'+esc(x.d)+'</span></div>';
+  }).join('');
+  document.getElementById('layer').innerHTML='<div class="mask"><div class="sheet" style="width:min(720px,95vw)">'+
+    '<button class="x" data-close="1">×</button>'+
+    '<h3>'+esc(p.name)+'</h3>'+
+    '<div class="sm">'+esc(p.kind)+' · 导入于 '+esc(p.date)+' · 全文 '+p.words+' 个不同单词 · 命中课本词 '+p.hits+' 个</div>'+
+    '<div class="sect-t" style="margin-top:18px">课本生词（点词读音）</div>'+
+    '<div class="tags" style="max-height:180px;overflow:auto">'+(chips||'<span style="font-size:12.5px;color:var(--mut)">这份试卷没有命中课本词表中的单词</span>')+'</div>'+
+    '<div class="sect-t" style="margin-top:16px">原文预览</div>'+
+    '<div style="max-height:200px;overflow:auto;background:#F7FAFE;border:1px solid var(--line);border-radius:10px;padding:12px 14px;font-size:12.5px;line-height:1.85;color:var(--ink2);white-space:pre-wrap">'+esc(p.text.slice(0,3000))+'</div>'+
+    '<div class="row" style="margin-top:16px;gap:8px;flex-wrap:wrap">'+
+      '<button class="btn btn-g" data-paper-star="'+esc(p.id)+'">把命中词汇加入生词本</button>'+
+      '<button class="btn btn-o" data-go="train">去词汇训练</button>'+
+      '<button class="btn btn-o" data-paper-del="'+esc(p.id)+'">删除这份讲评</button>'+
+    '</div></div></div>';
+}
+
 /* ========== 动作 ========== */
 function doAct(a,el){
   switch(a){
@@ -1508,6 +1920,12 @@ function doAct(a,el){
       break;
     }
     case 'review-all':startReview(scopeWords().slice().sort(function(){return Math.random()-0.5;}).slice(0,40));break;
+    case 'spell':{
+      const pool=scopeWords();
+      const un=pool.filter(function(x){return lvOf(x.id)!==2;});
+      startSpell(un.length?un:pool);
+      break;
+    }
     case 'dict-review':{
       const all=ALL();
       const todo=all.filter(function(x){const v=lvOf(x.id);return v===0||v===1;});
@@ -1548,18 +1966,20 @@ function doAct(a,el){
       S.star[hit.id]=true;save();toast('已收录 '+hit.w);render();break;
     }
     case 'newblank':toast('已新建空白讲评（可在卡片区继续管理）');break;
-    case 'import':{
-      const n=window.prompt('输入讲评标题（例如：必修二 Unit 3 阅读讲评）');
-      if(!n)return;
-      toast('已导入：'+n+'（词库仍使用课本词表）');break;
-    }
+    case 'import':pickFiles();break;
+    case 'ocr':pickOcr();break;
+    case 'ocr-test':testOcr();break;
     case 'selall':{
       examList().forEach(function(o){S.sel[o.id]=true;});save();render();toast('已全选');break;
     }
     case 'del':{
       const ids=examList().filter(function(o){return S.sel[o.id];}).map(function(o){return o.id;});
       if(!ids.length){toast('先勾选要删除的讲评');return;}
-      ids.forEach(function(id){S.sel[id]=false;if(S.hidden.indexOf(id)<0)S.hidden.push(id);});
+      ids.forEach(function(id){
+        S.sel[id]=false;
+        if(id.charAt(0)==='p'){ S.papers=(S.papers||[]).filter(function(x){return x.id!==id;}); }
+        else if(S.hidden.indexOf(id)<0){ S.hidden.push(id); }
+      });
       save();render();toast('已移除 '+ids.length+' 个讲评卡片');break;
     }
     case 'top':{
@@ -1607,6 +2027,19 @@ document.addEventListener('click',function(e){
   const go=e.target.closest('[data-go]');
   if(go){view=go.dataset.go;render();window.scrollTo({top:0,behavior:'smooth'});return;}
 
+  const spb=e.target.closest('[data-sp]');
+  if(spb&&spell){
+    const k=spb.dataset.sp;
+    if(k==='close'){spell=null;closeLayer();render();return;}
+    if(k==='again'){const l=spell.list;spell=null;startSpell(l);return;}
+    if(k==='submit'){spellCheck();return;}
+    if(k==='next'){spellNext();return;}
+    if(k==='hint'){spellHint();return;}
+    if(k==='audio'){speak(spell.list[spell.i].w);return;}
+    if(k==='skip'){const x=spell.list[spell.i];S.lv[x.id]=1;save();spell.i++;spell.checked=false;drawSpell();return;}
+    return;
+  }
+
   const q=e.target.closest('[data-q]');
   if(q&&review){
     const k=q.dataset.q,x=review.list[review.i];
@@ -1625,7 +2058,11 @@ document.addEventListener('click',function(e){
   if(sel){e.stopPropagation();const id=sel.dataset.sel;S.sel[id]=!S.sel[id];save();sel.classList.toggle('on');return;}
 
   const ex=e.target.closest('[data-exam]');
-  if(ex){const id=ex.dataset.exam;S.set.tab=id;view='train';render();toast('已进入 '+unitByKey(id).name+' 词汇训练');return;}
+  if(ex){
+    const id=ex.dataset.exam;
+    if(id.charAt(0)==='p'){ openPaper(id); return; }
+    S.set.tab=id;view='train';render();toast('已进入 '+unitByKey(id).name+' 词汇训练');return;
+  }
 
   const sp=e.target.closest('[data-speak]');
   if(sp){speak(sp.dataset.speak);return;}
@@ -1653,6 +2090,28 @@ document.addEventListener('click',function(e){
   if(star){S.star[star.dataset.star]=!S.star[star.dataset.star];save();openWord(star.dataset.star);return;}
 
   if(e.target.closest('[data-close]')){closeLayer();render();return;}
+
+  const pstar=e.target.closest('[data-paper-star]');
+  if(pstar){
+    const p=(S.papers||[]).find(function(x){return x.id===pstar.dataset.paperStar;});
+    if(p&&p.list){ p.list.forEach(function(w){const x=ALL().find(function(v){return v.w.toLowerCase()===w;});if(x)S.star[x.id]=true;}); }
+    save();toast('已加入生词本');render();return;
+  }
+  const pdel=e.target.closest('[data-paper-del]');
+  if(pdel){
+    if(!window.confirm('删除这份导入的讲评？')) return;
+    const id=pdel.dataset.paperDel;
+    S.papers=(S.papers||[]).filter(function(x){return x.id!==id;});
+    save();closeLayer();render();toast('已删除');return;
+  }
+  const osave=e.target.closest('[data-ocr-save]');
+  if(osave){
+    const ta=document.getElementById('ocrText');
+    const txt=ta?ta.value.trim():'';
+    if(!txt){toast('识别结果是空的');return;}
+    addPaper(osave.dataset.ocrSave,txt,'OCR 图片');
+    closeLayer();render();toast('已生成讲评卡片');return;
+  }
 
   const act=e.target.closest('[data-act]');
   if(act){doAct(act.dataset.act,act);}
@@ -1695,9 +2154,20 @@ document.addEventListener('change',function(e){
   if(e.target.id==='aiSel'){S.set.ai=e.target.value;save();return;}
   if(e.target.id==='autoSpeak'){S.set.auto=e.target.checked;save();return;}
   if(e.target.id==='apiId'){S.set.api=e.target.value;save();return;}
+  if(e.target.id==='ocrUrl'){S.set.ocrUrl=e.target.value.trim();save();return;}
+  if(e.target.id==='ocrLang'){S.set.ocrLang=e.target.value;save();return;}
+  if(e.target.id==='ocrParser'){S.set.ocrParser=e.target.value;save();return;}
 });
 
 document.addEventListener('keydown',function(e){
+  if(spell){
+    if(e.key==='Escape'){spell=null;closeLayer();render();return;}
+    if(e.key==='Enter'){
+      e.preventDefault();
+      if(spell.checked) spellNext(); else spellCheck();
+      return;
+    }
+  }
   if(e.key==='Enter'&&e.target.id==='dictSearch'){doAct('addword');return;}
   if(!review)return;
   if(e.code==='Space'){e.preventDefault();if(!review.shown){review.shown=true;drawReview();}return;}
@@ -1710,6 +2180,27 @@ document.addEventListener('keydown',function(e){
     review.i++;review.shown=false;save();drawReview();
   }
 });
+
+async function testOcr(){
+  const el=document.getElementById('ocrState');
+  if(el){el.textContent='检测中…';el.style.color='var(--mut)';}
+  const url=ocrBase();
+  let t=null;
+  try{
+    const ctrl=new AbortController();
+    t=setTimeout(function(){ctrl.abort();},6000);
+    const r=await fetch(url+'/api/ocr/get_options',{signal:ctrl.signal});
+    const j=await r.json();
+    clearTimeout(t);
+    const n=Object.keys(j||{}).length;
+    if(el){el.textContent='已连接 · 返回 '+n+' 个参数';el.style.color='#2E7D45';}
+    toast('Umi-OCR 已连接，可以用了');
+  }catch(e){
+    if(t)clearTimeout(t);
+    if(el){el.textContent='未连接 · 请启动 Umi-OCR 的 HTTP 服务';el.style.color='#B8442F';}
+    toast('连不上 '+url+'，先打开 Umi-OCR 并勾选「HTTP 服务」');
+  }
+}
 
 function applySet(){
   document.documentElement.style.setProperty('--fs',(S.set.fs/100*15)+'px');
