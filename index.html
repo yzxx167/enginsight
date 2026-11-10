@@ -2255,7 +2255,7 @@ async function ocrLocal(b64){
 }
 
 /* ---------- 浏览器内置 OCR：tesseract.js，资源随站点一起部署 ---------- */
-let _tess=null,_tessLoading=null,_tessProg=null;
+let _tess=null,_tessLoading=null,_tessProg=null,_tessPsm=null;
 function ocrAsset(p){ return new URL('ocr/'+p, location.href).href; }
 function loadTesseract(){
   if(window.Tesseract) return Promise.resolve(window.Tesseract);
@@ -2307,7 +2307,7 @@ function tidyOcr(s){
 }
 async function ocrBrowser(dataUrl,onProgress){
   if(location.protocol==='file:'){
-    throw new Error('本地文件方式下浏览器识别不可用（Worker 受限制），请启动 Umi-OCR，或部署到网上使用');
+    throw new Error('你现在是直接双击本地文件打开的，浏览器不允许这种页面跑识别引擎。两个办法：① 打开线上地址 https://yzxx167.github.io/enginsight/ 使用（换任何设备都能识别）；② 保持本页不动，另开 Umi-OCR 用本机识别。');
   }
   const T=await loadTesseract();
   if(!_tess){
@@ -2326,8 +2326,25 @@ async function ocrBrowser(dataUrl,onProgress){
   }
   _tessProg=onProgress;
   const ready=await upscaleSmall(dataUrl);
+  /* 按图片形状切版面模式：单行截图 VS 文字块 VS 整页扫描，混用会串行、漏字 */
+  try{
+    const im=await loadImg(ready);
+    const psm=psmFor(im.width,im.height);
+    if(psm!==_tessPsm){
+      await _tess.setParameters({tessedit_pageseg_mode:psm});
+      _tessPsm=psm;
+    }
+  }catch(e){}
   const r=await _tess.recognize(ready);
   return tidyOcr((r&&r.data&&r.data.text)||'');
+}
+/* 版面模式：7=单行文字 6=一块文字 3=整页自动分区 */
+function psmFor(w,h){
+  if(!w||!h) return '3';
+  const r=w/h;
+  if(h<=210&&r>=4) return '7';   /* 又宽又扁：一行字，按单行识别最准 */
+  if(r<1.25&&h>820) return '3';  /* 竖长整页扫描：交给自动分区 */
+  return '6';                     /* 截图里的题干文字块 */
 }
 
 /* 统一入口：按设置决定用哪个引擎，auto 自动降级 */
