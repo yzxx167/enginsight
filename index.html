@@ -215,8 +215,8 @@ input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:14px;heigh
 .radio input{accent-color:var(--g)}
 
 /* ================= modal / toast ================= */
-.mask{position:fixed;inset:0;background:rgba(28,48,40,.34);backdrop-filter:blur(3px);z-index:60;display:grid;place-items:center;padding:20px}
-.sheet{background:#FFFDFA;border-radius:18px;width:min(560px,94vw);padding:20px 24px 22px;box-shadow:0 24px 60px rgba(20,50,40,.26);position:relative}
+.mask{position:fixed;inset:0;background:rgba(16,38,72,.38);backdrop-filter:blur(3px);z-index:60;display:grid;place-items:center;padding:20px}
+.sheet{background:#fff;border-radius:18px;width:min(560px,94vw);padding:20px 24px 22px;box-shadow:0 24px 60px rgba(16,40,80,.26);position:relative}
 .sheet .x{position:absolute;right:14px;top:10px;color:var(--mut);font-size:22px;line-height:1;padding:4px}
 .sheet h3{font-size:15px;margin-bottom:2px}
 .sheet .sm{font-size:11.5px;color:var(--mut)}
@@ -239,6 +239,16 @@ input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:14px;heigh
 .toast{position:fixed;left:50%;bottom:32px;transform:translateX(-50%) translateY(14px);background:rgba(24,45,74,.94);color:#fff;font-size:12.5px;padding:9px 18px;border-radius:999px;opacity:0;transition:.25s;z-index:99;pointer-events:none;max-width:80vw}
 .toast.on{opacity:1;transform:translateX(-50%) translateY(0)}
 .hidden{display:none!important}
+.ocr-cmp{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:14px;align-items:start}
+.ocr-pic{border:1px solid var(--line);border-radius:10px;background:#F7FAFE;padding:6px;max-height:340px;overflow:auto}
+.ocr-pic img{width:100%;display:block;border-radius:6px;cursor:zoom-in}
+.ocr-pic.big{position:fixed;inset:12px;max-height:none;z-index:80;background:#fff;box-shadow:0 20px 60px rgba(20,40,80,.35);overflow:auto}
+.ocr-pic.big img{cursor:zoom-out;width:auto;max-width:100%;margin:0 auto}
+.ocr-warn{margin-top:12px;padding:9px 12px;border-radius:9px;background:#FFF6E6;border:1px solid #F3D9A8;color:#8A5B12;font-size:12px;line-height:1.7}
+.paste-tip{margin:-6px 0 14px;font-size:12px;color:var(--mut)}
+.paste-tip b{color:var(--g);font-weight:700}
+@media(max-width:820px){.ocr-cmp{grid-template-columns:1fr}.ocr-pic{max-height:200px}}
+body.drag-over::after{content:'松开即导入';position:fixed;inset:0;background:rgba(47,111,228,.12);border:3px dashed var(--g);z-index:95;display:grid;place-items:center;font-size:20px;color:var(--g-d);font-weight:700;pointer-events:none}
 
 @media(max-width:980px){
   .app{flex-direction:column}
@@ -1092,9 +1102,22 @@ const PASSAGES = {
 const KEY='enginsight_b12_v2';
 const DEF={lv:{},star:{},order:[],hidden:[],sel:{},papers:[],
   set:{rate:0.55,accent:'en-US',fs:100,font:'sans',dict:'builtin',api:'',ai:'builtin',auto:false,tab:'all',readUnit:'b1-WU',
-       ocrUrl:'http://127.0.0.1:1224',ocrLang:'models/config_en.txt',ocrParser:'multi_para'},view:'exams'};
+       ocrUrl:'http://127.0.0.1:1224',ocrLang:'chinese',ocrParser:'single_para',
+       ocrSide:'high',ocrCls:true,ocrEngine:'auto'},view:'exams'};
 let S=load();
 let view=S.view||'exams';
+/* 迁移：v2 以前语言存的是 PaddleOCR 的模型文件名、精度存的是 960/4320 这类具体数值。
+   v3 起统一改成语义值（chinese/en/… 与 high/max/fast），由服务端参数表翻译成实际值，
+   这样 PaddleOCR 和 RapidOCR（参数名完全不同）都能用。 */
+if(S.set.ocrVer!==3){
+  if(!S.set.ocrLang||/models\/config|^$/.test(S.set.ocrLang)){
+    S.set.ocrLang=/en\.txt$/.test(S.set.ocrLang||'')?'en':'chinese';
+  }
+  if(!S.set.ocrParser||S.set.ocrParser==='multi_para') S.set.ocrParser='single_para';
+  if(!S.set.ocrSide||!isNaN(Number(S.set.ocrSide))) S.set.ocrSide='high';
+  if(S.set.ocrCls===undefined) S.set.ocrCls=true;
+  S.set.ocrVer=3; save();
+}
 let review=null;
 
 function load(){
@@ -1240,6 +1263,7 @@ function vExams(){
       '<button class="btn btn-o" data-act="newblank">'+ic('plus')+' 新建空白</button>'+
       '<button class="btn btn-o" data-act="import">'+ic('up')+' 导入试卷</button>'+
       '<button class="btn btn-g" data-act="ocr">'+ic('search')+' 截图识别</button></div>'+
+    '<div class="paste-tip">截图后不用存文件，直接在本页按 <b>Ctrl</b> + <b>V</b> 粘贴，自动识别</div>'+
     '<div class="exam-tools">'+
       '<div class="tool-input">'+ic('search')+'<input id="examSearch" placeholder="搜索标题…"></div>'+
       '<div class="spacer"></div>'+
@@ -1467,26 +1491,46 @@ function vSettings(){
         '<option value="cloud" '+(s.ai==='cloud'?'selected':'')+'>云端模型</option></select></span></div>'+
       '<div class="set-line"><span class="k">自检</span><span class="v"><button class="fsbtn" data-act="test">检查本机能力</button></span></div>'+
     '</div>'+
-    '<div class="card set-block"><h4><i></i>OCR 识别（Umi-OCR）</h4>'+
-      '<div class="set-line"><span class="k">接口地址</span><span class="v"><input type="text" id="ocrUrl" value="'+esc(s.ocrUrl||'http://127.0.0.1:1224')+'" placeholder="http://127.0.0.1:1224"></span></div>'+
+    '<div class="card set-block"><h4><i></i>OCR 识别</h4>'+
+      '<div class="set-line"><span class="k">识别引擎</span><span class="v"><select id="ocrEngine">'+
+        '<option value="auto" '+((s.ocrEngine||'auto')==='auto'?'selected':'')+'>自动（优先本机，没有就用浏览器）</option>'+
+        '<option value="browser" '+(s.ocrEngine==='browser'?'selected':'')+'>仅浏览器内置（换设备也能用）</option>'+
+        '<option value="local" '+(s.ocrEngine==='local'?'selected':'')+'>仅本机 Umi-OCR（更准，需装软件）</option>'+
+      '</select></span></div>'+
+      '<div class="set-line"><span class="k">浏览器引擎</span><span class="v"><button class="fsbtn" data-act="ocr-test-browser">测试内置识别</button>'+
+        '<span id="ocrBState" style="font-size:11.5px;color:var(--mut)">未测试</span></span></div>'+
+      '<div class="set-line"><span class="k">本机地址</span><span class="v"><input type="text" id="ocrUrl" value="'+esc(s.ocrUrl||'http://127.0.0.1:1224')+'" placeholder="http://127.0.0.1:1224"></span></div>'+
       '<div class="set-line"><span class="k">识别语言</span><span class="v"><select id="ocrLang">'+
-        '<option value="models/config_en.txt" '+((s.ocrLang||'')==='models/config_en.txt'?'selected':'')+'>English</option>'+
-        '<option value="models/config_chinese.txt" '+(s.ocrLang==='models/config_chinese.txt'?'selected':'')+'>简体中文</option>'+
-        '<option value="models/config_chinese_cht(v2).txt" '+(s.ocrLang==='models/config_chinese_cht(v2).txt'?'selected':'')+'>繁體中文</option>'+
-        '<option value="models/config_japan.txt" '+(s.ocrLang==='models/config_japan.txt'?'selected':'')+'>日本語</option>'+
-        '<option value="models/config_korean.txt" '+(s.ocrLang==='models/config_korean.txt'?'selected':'')+'>한국어</option>'+
+        '<option value="chinese" '+((s.ocrLang||'chinese')==='chinese'?'selected':'')+'>简体中文（中英混排首选）</option>'+
+        '<option value="en" '+(s.ocrLang==='en'?'selected':'')+'>English（纯英文）</option>'+
+        '<option value="cht" '+(s.ocrLang==='cht'?'selected':'')+'>繁體中文</option>'+
+        '<option value="jp" '+(s.ocrLang==='jp'?'selected':'')+'>日本語</option>'+
+        '<option value="kr" '+(s.ocrLang==='kr'?'selected':'')+'>한국어</option>'+
+      '</select></span></div>'+
+      '<div class="set-line"><span class="k">识别精度</span><span class="v"><select id="ocrSide">'+
+        '<option value="high" '+((s.ocrSide||'high')==='high'?'selected':'')+'>高（推荐，小字也能认）</option>'+
+        '<option value="max" '+(s.ocrSide==='max'?'selected':'')+'>最高（原图不缩，最慢）</option>'+
+        '<option value="fast" '+(s.ocrSide==='fast'?'selected':'')+'>标准（快，小字易糊）</option>'+
+      '</select></span></div>'+
+      '<div class="set-line"><span class="k">纠正方向</span><span class="v"><select id="ocrCls">'+
+        '<option value="1" '+(s.ocrCls!==false?'selected':'')+'>开启（照片歪了/倒置也能认）</option>'+
+        '<option value="0" '+(s.ocrCls===false?'selected':'')+'>关闭（正着截的图，更快）</option>'+
       '</select></span></div>'+
       '<div class="set-line"><span class="k">排版解析</span><span class="v"><select id="ocrParser">'+
-        '<option value="multi_para" '+((s.ocrParser||'')==='multi_para'?'selected':'')+'>多栏 · 按自然段换行</option>'+
+        '<option value="single_para" '+((s.ocrParser||'single_para')==='single_para'?'selected':'')+'>单栏 · 按自然段换行（试卷首选）</option>'+
+        '<option value="single_line" '+(s.ocrParser==='single_line'?'selected':'')+'>单栏 · 总是换行（一行一题）</option>'+
+        '<option value="single_none" '+(s.ocrParser==='single_none'?'selected':'')+'>单栏 · 无换行</option>'+
+        '<option value="multi_para" '+(s.ocrParser==='multi_para'?'selected':'')+'>多栏 · 按自然段换行（左右分栏）</option>'+
         '<option value="multi_line" '+(s.ocrParser==='multi_line'?'selected':'')+'>多栏 · 总是换行</option>'+
-        '<option value="single_para" '+(s.ocrParser==='single_para'?'selected':'')+'>单栏 · 按自然段换行</option>'+
-        '<option value="single_line" '+(s.ocrParser==='single_line'?'selected':'')+'>单栏 · 总是换行</option>'+
       '</select></span></div>'+
       '<div class="set-line"><span class="k">连接状态</span><span class="v">'+
         '<button class="fsbtn" data-act="ocr-test">测试连接</button>'+
         '<span id="ocrState" style="font-size:11.5px;color:var(--mut)">未测试</span></span></div>'+
-      '<div class="set-line"><span class="k">怎么用</span><span class="v" style="font-size:11.5px;color:var(--mut);line-height:1.75">'+
-        '打开 Umi-OCR → 全局设置 → 勾选「HTTP 服务」并启动（默认端口 1224）。识别在你自己电脑上完成，图片不上传任何服务器。'+
+      '<div class="set-line"><span class="k">怎么用</span><span class="v" style="font-size:11.5px;color:var(--mut);line-height:1.85">'+
+        '<b style="color:var(--ink)">① 先启动服务</b>：双击 <code style="background:#EEF4FE;padding:1px 5px;border-radius:4px;color:var(--g-d)">D:\\资料\\Umi-OCR\\Umi-OCR.exe</code>，窗口可最小化但别关。'+
+        '<br><b style="color:var(--ink)">② 再点上面的「测试连接」</b>，看到「✓ 真的 Umi-OCR」就成了。'+
+        '<br><span style="color:#8A5B12">注意：在浏览器里直接打开 127.0.0.1:1224 打不开是正常的——它没有首页，只响应 /api/… 接口。要验证请访问 <code style="background:#EEF4FE;padding:1px 5px;border-radius:4px">127.0.0.1:1224/api/ocr/get_options</code>，能看到一串参数就说明服务活着。</span>'+
+        '<br>识别全在本机完成，图片不上传任何服务器。'+
         (location.protocol==='https:'?'<br><b style="color:#C0392B">当前是线上 https 页面，浏览器会拦截对 http://127.0.0.1 的请求，OCR 用不了；把本页 HTML 下载到电脑双击打开即可正常使用。</b>':'')+
         '</span></div>'+
     '</div>'+
@@ -1655,7 +1699,7 @@ async function handleFiles(files){
     try{
       const r=await parseFile(f);
       if(!r||!r.text||!r.text.trim()){ fail.push(f.name+'(未提取到文字)'); continue; }
-      if(r.kind==='OCR 图片'){ openOcrReview(f.name,r.text); ok++; continue; }
+      if(r.kind==='OCR 图片'){ openOcrReview(f.name,r.text,r.img); ok++; continue; }
       addPaper(f.name,r.text,r.kind);
       ok++;
     }catch(err){ fail.push(f.name+'：'+err.message); }
@@ -1667,12 +1711,26 @@ async function handleFiles(files){
 
 async function parseFile(file){
   const n=file.name.toLowerCase();
-  if(/\.(png|jpe?g|webp|bmp|gif)$/.test(n)) return {text:await ocrImage(file),kind:'OCR 图片'};
+  if(/\.(png|jpe?g|webp|bmp|gif)$/.test(n)){ const r=await ocrImage(file); return {text:r.text,kind:'OCR 图片',img:r.img}; }
   if(/\.(txt|md|csv)$/.test(n)) return {text:await file.text(),kind:'文本'};
   if(/\.(html|htm)$/.test(n)) return {text:htmlToText(await file.text()),kind:'网页'};
   if(/\.docx$/.test(n)) return {text:await docxText(await file.arrayBuffer()),kind:'Word'};
-  if(/\.pdf$/.test(n)) return {text:await pdfText(await file.arrayBuffer()),kind:'PDF'};
-  if(/\.doc$/.test(n)) throw new Error('旧版 .doc 不支持，请另存为 .docx');
+  if(/\.pdf$/.test(n)){
+    const buf=await file.arrayBuffer();
+    /* 先走文字层：电子版 PDF 直接抽字，又快又准 */
+    let pure='';
+    try{ pure=await pdfText(buf); }catch(e){ pure=''; }
+    if(pure&&pure.trim()) return {text:pure,kind:'PDF'};
+    /* 没有文字层 = 扫描件，把每页的 JPEG 抠出来走 OCR */
+    toast('扫描件 PDF：正在逐页识别，请稍候…');
+    const r=await pdfOcr(buf,function(cur,total){
+      if(cur===1||cur%2===0||cur===total)
+        toast('逐页识别中… '+cur+'/'+total+(total>10?'（约 '+(total-cur)+' 页剩余）':''));
+    },40);
+    const kind='PDF 扫描件（OCR '+r.ok+'/'+r.done+' 页'+(r.cut?('，共 '+r.pages+' 页仅取前 '+r.done+' 页'):'')+'）';
+    return {text:r.text,kind:kind};
+  }
+  if(/\.doc$/.test(n)) throw new Error('旧版 .doc 打不开，请在 Word 里「另存为」.docx 再导入（或直接截图/导出 PDF 走识别）');
   throw new Error('不支持的格式');
 }
 
@@ -1683,16 +1741,114 @@ function ocrBase(){
 function fileToBase64(file){
   return new Promise(function(res,rej){
     const fr=new FileReader();
-    fr.onload=function(){ const s=String(fr.result); res(s.slice(s.indexOf(',')+1)); };
+    fr.onload=function(){ const s=String(fr.result); res({b64:s.slice(s.indexOf(',')+1),url:s}); };
     fr.onerror=function(){ rej(new Error('读取图片失败')); };
     fr.readAsDataURL(file);
   });
 }
-async function ocrImage(file){
+/* 识别质量自检：正常试卷（英文或中英混排）里「乱码字符」占比极低，一旦超标基本就是糊了 */
+function ocrSuspect(t){
+  const s=String(t||'');
+  if(s.length<20) return '';
+  /* 允许：拉丁字母数字、空白、西文标点、中日韩汉字、中日韩标点、全角符号 */
+  const bad=(s.match(/[^\w\s.,!?;:'"()\[\]\-–—…·%&*+/@#$~`^<>={}｜_\\|\u4e00-\u9fff\u3000-\u303f\uff00-\uffef]/g)||[]).length;
+  const ratio=bad/s.length;
+  if(ratio>0.15) return '这段结果里乱码字符占 '+(ratio*100).toFixed(0)+'%，基本可以判定图片太小/太糊，请只截题目区域放大后重新识别。';
+  const words=s.match(/[A-Za-z]{2,}/g)||[];
+  if(words.length>5){
+    const avg=words.reduce(function(a,w){return a+w.length;},0)/words.length;
+    if(avg<2.8||avg>11) return '识别出的英文单词平均长度 '+avg.toFixed(1)+' 个字母，明显偏离正常英语（约 5～7），建议放大后重试。';
+  }
+  return '';
+}
+/* 识别前先确认对面的确是真的 Umi-OCR：真服务的参数表每个参数都有 title + optionsList，
+   其它随便一个 HTTP 服务（含各种 mock、代理、占位页）都拿不到这个结构，直接拒掉，
+   避免「服务没起、连到别的东西，却回一段看似正常的文字」这种假成功。 */
+let _ocrCap=null;
+async function ocrCap(){
+  if(_ocrCap) return _ocrCap;
   const url=ocrBase();
-  const b64=await fileToBase64(file);
-  const options={'data.format':'text','tbpu.parser':S.set.ocrParser||'multi_para'};
-  if(S.set.ocrLang) options['ocr.language']=S.set.ocrLang;
+  const ctrl=new AbortController();
+  const t=setTimeout(function(){ctrl.abort();},6000);
+  try{
+    const r=await fetch(url+'/api/ocr/get_options',{signal:ctrl.signal});
+    const j=await r.json();
+    const real=Object.keys(j||{}).some(function(k){const v=j[k];return v&&v.title&&v.optionsList;});
+    if(!real) throw new Error(
+      '这个地址回应的不是 Umi-OCR：参数表里没有 title / optionsList 结构。'+
+      '请确认接口地址对不对，或者端口上是不是被别的程序占了。'
+    );
+    _ocrCap={raw:j};
+    return _ocrCap;
+  }catch(e){
+    if(e.name==='AbortError') throw new Error('连不上 OCR 服务（6 秒无响应）。请先打开 Umi-OCR，并在全局设置里勾选「HTTP 服务」后点「启动」。');
+    if(e instanceof TypeError) throw new Error('连不上 '+url+'：端口上没有程序在听。请先双击打开 Umi-OCR（别关窗口），或检查代理/加速器是否拦截了 127.0.0.1。');
+    throw e;
+  }finally{ clearTimeout(t); }
+}
+/* 把界面上的语义值，翻译成当前引擎真正认识的键名和取值。
+   PaddleOCR: ocr.language="models/config_chinese.txt" / ocr.limit_side_len / ocr.cls
+   RapidOCR : ocr.language="简体中文"                   / ocr.maxSideLen     / ocr.angle
+   传错键名不会被报错，只会被静默忽略，于是「以为调了参数其实没调」。 */
+const OCR_LANG_ALIAS={
+  chinese:['简体中文','models/config_chinese.txt','简体中文（中英混排）','Chinese'],
+  en:['English','models/config_en.txt','英文'],
+  cht:['繁體中文','models/config_chinese_cht(v2).txt','繁体中文'],
+  jp:['日本語','models/config_japan.txt','日语'],
+  kr:['한국어','models/config_korean.txt','韩语']
+};
+function buildOcrOptions(cap){
+  const j=(cap&&cap.raw)||{};
+  const o={'data.format':'text'};
+
+  /* 语言：优先用用户选的语义，落地时挑服务端 optionsList 里真实存在的那个名字 */
+  if(j['ocr.language']){
+    const list=((j['ocr.language'].optionsList)||[]).map(function(x){return x[0];});
+    const want=OCR_LANG_ALIAS[S.set.ocrLang]||OCR_LANG_ALIAS.chinese;
+    let hit=null;
+    for(let i=0;i<want.length&&!hit;i++){ if(list.indexOf(want[i])>=0) hit=want[i]; }
+    if(!hit&&list.length) hit=list[0];
+    if(hit) o['ocr.language']=hit;
+  }
+
+  /* 精度：不同引擎键名和档位都不同，按「不小于目标值的最小档」挑，挑不到就用最大档 */
+  const sideKey=j['ocr.maxSideLen']!==undefined?'ocr.maxSideLen'
+               :j['ocr.limit_side_len']!==undefined?'ocr.limit_side_len':null;
+  if(sideKey){
+    const nums=((j[sideKey].optionsList)||[]).map(function(x){return Number(x[0]);})
+      .filter(function(n){return !isNaN(n);}).sort(function(a,b){return a-b;});
+    if(nums.length){
+      let pick=nums[nums.length-1];
+      if(S.set.ocrSide==='fast') pick=nums[0];
+      else if(S.set.ocrSide!=='max'){
+        const target=4000;   /* 落地成 PaddleOCR 的 4320 或 RapidOCR 的 4096 */
+        for(let i=0;i<nums.length;i++){ if(nums[i]>=target){ pick=nums[i]; break; } }
+      }
+      o[sideKey]=pick;
+    }
+  }
+
+  /* 纠方向：PaddleOCR 叫 ocr.cls，RapidOCR 叫 ocr.angle */
+  const angKey=j['ocr.cls']!==undefined?'ocr.cls':j['ocr.angle']!==undefined?'ocr.angle':null;
+  if(angKey) o[angKey]=S.set.ocrCls!==false;
+
+  /* 排版：两家取值一致，但仍确认服务端支持再传 */
+  const pl=((j['tbpu.parser']&&j['tbpu.parser'].optionsList)||[]).map(function(x){return x[0];});
+  const p=S.set.ocrParser||'single_para';
+  if(!pl.length||pl.indexOf(p)>=0) o['tbpu.parser']=p;
+  else if(pl.indexOf('single_para')>=0) o['tbpu.parser']='single_para';
+
+  return o;
+}
+/* 核心：把一张图的 base64 交给 OCR，返回文本。图片和 PDF 抽出的页图都走这里。
+   两种引擎：
+     ① 本机 Umi-OCR（准、快，但要装软件、只在本机）
+     ② 浏览器内置 tesseract.js（随站点部署，换任何设备打开都能用）
+   auto 模式先试本机，连不上自动切浏览器，云端部署时就是纯浏览器识别。 */
+async function ocrLocal(b64){
+  const url=ocrBase();
+  const cap=await ocrCap();
+  const options=buildOcrOptions(cap);
   let ctrl=null,timer=null;
   try{
     ctrl=new AbortController();
@@ -1717,22 +1873,135 @@ async function ocrImage(file){
     if(err instanceof TypeError){
       if(location.protocol==='https:' && url.indexOf('http://')===0)
         throw new Error('线上版（https）访问本地 http 服务被浏览器拦截，请把本 HTML 下载到电脑双击打开再用 OCR');
-      throw new Error('连不上 OCR 服务，请先启动 Umi-OCR 并开启「HTTP 服务」');
+      throw new Error('连不上 OCR 服务，请先双击启动 Umi-OCR');
     }
     throw err;
   }finally{ if(timer)clearTimeout(timer); }
 }
 
-function openOcrReview(name,text){
-  document.getElementById('layer').innerHTML='<div class="mask"><div class="sheet" style="width:min(760px,95vw)">'+
+/* ---------- 浏览器内置 OCR：tesseract.js，资源随站点一起部署 ---------- */
+let _tess=null,_tessLoading=null,_tessProg=null;
+function ocrAsset(p){ return new URL('ocr/'+p, location.href).href; }
+function loadTesseract(){
+  if(window.Tesseract) return Promise.resolve(window.Tesseract);
+  if(_tessLoading) return _tessLoading;
+  _tessLoading=new Promise(function(res,rej){
+    const s=document.createElement('script');
+    s.src=ocrAsset('tesseract.min.js');
+    s.onload=function(){ window.Tesseract?res(window.Tesseract):rej(new Error('OCR 引擎加载异常')); };
+    s.onerror=function(){ _tessLoading=null; rej(new Error('OCR 引擎加载失败：找不到 ocr/tesseract.min.js')); };
+    document.head.appendChild(s);
+  });
+  return _tessLoading;
+}
+async function ocrBrowser(dataUrl,onProgress){
+  if(location.protocol==='file:'){
+    throw new Error('本地文件方式下浏览器识别不可用（Worker 受限制），请启动 Umi-OCR，或部署到网上使用');
+  }
+  const T=await loadTesseract();
+  if(!_tess){
+    _tessProg=onProgress;
+    _tess=await T.createWorker('eng',1,{
+      workerPath:ocrAsset('worker.min.js'),
+      corePath:ocrAsset(''),
+      langPath:ocrAsset('tessdata'),
+      logger:function(m){
+        if(_tessProg&&m&&m.status==='loading tesseract core') _tessProg('正在加载识别引擎…');
+        else if(_tessProg&&m&&m.status==='loading language traineddata') _tessProg('首次使用，正在下载语言模型…');
+        else if(_tessProg&&m&&m.status==='recognizing text') _tessProg('识别中… '+Math.round((m.progress||0)*100)+'%');
+      }
+    });
+  }
+  _tessProg=onProgress;
+  const r=await _tess.recognize(dataUrl);
+  return String((r&&r.data&&r.data.text)||'').trim();
+}
+
+/* 统一入口：按设置决定用哪个引擎，auto 自动降级 */
+async function ocrBase64(b64,mime,onProgress){
+  const mode=S.set.ocrEngine||'auto';
+  const dataUrl='data:'+(mime||'image/png')+';base64,'+b64;
+  if(mode!=='browser'){
+    try{
+      return await ocrLocal(b64);
+    }catch(e){
+      if(mode==='local') throw e;
+      /* auto：本机不在就转浏览器，不打扰用户 */
+      if(onProgress) onProgress('本机 OCR 不可用，改用浏览器识别…');
+    }
+  }
+  return await ocrBrowser(dataUrl,onProgress);
+}
+async function ocrImage(file){
+  const img=await fileToBase64(file);
+  const text=await ocrBase64(img.b64,file.type||'image/png',function(msg){toast(msg);});
+  return {text:text,img:img.url};
+}
+
+/* ---------- 扫描版 PDF：把内嵌的 JPEG 原图抠出来逐张 OCR ---------- */
+function u8ToBase64(u8){
+  let s='';
+  const CH=0x8000;
+  for(let i=0;i<u8.length;i+=CH) s+=String.fromCharCode.apply(null,u8.subarray(i,i+CH));
+  return btoa(s);
+}
+/* 扫描件 PDF 的每页通常是一整张 DCTDecode(JPEG)，在文件里就是 FFD8FF…FFD9，
+   直接按魔数切出来即可，不需要解析 PDF 对象树。 */
+function pdfImages(buf){
+  const u8=new Uint8Array(buf);
+  const out=[];
+  let i=0;
+  while(i<u8.length-3){
+    if(u8[i]===0xFF&&u8[i+1]===0xD8&&u8[i+2]===0xFF){
+      let j=i+2, end=-1;
+      while(j<u8.length-1){
+        if(u8[j]===0xFF&&u8[j+1]===0xD9){ end=j+1; break; }
+        j++;
+      }
+      if(end>0&&end-i>2048){ out.push(u8.subarray(i,end+1)); i=end+1; continue; }
+    }
+    i++;
+  }
+  return out;
+}
+async function pdfOcr(buf,onProgress,maxPages){
+  const all=pdfImages(buf);
+  if(!all.length) throw new Error('这个 PDF 既没有文字层，也找不到可识别的页面图片');
+  const max=maxPages||40;
+  const imgs=all.slice(0,max);
+  let out=[], fail=0, first=null;
+  for(let i=0;i<imgs.length;i++){
+    if(onProgress) onProgress(i+1,imgs.length);
+    try{
+      const t=await ocrBase64(u8ToBase64(imgs[i]),'image/jpeg');
+      if(t&&t.trim()) out.push(t.trim());
+    }catch(e){
+      if(!first) first=e;              /* 第 1 页就失败，多半是引擎没就绪，直接抛出去 */
+      fail++;
+      if(fail>=3&&!out.length) break;
+    }
+  }
+  if(!out.length) throw (first||new Error('PDF 前 '+imgs.length+' 页都没识别出文字（可能是封面/插图页）'));
+  return {text:out.join('\n\n'), pages:all.length, done:imgs.length, ok:out.length, fail:fail, cut:all.length>imgs.length};
+}
+
+function openOcrReview(name,text,img){
+  const warn=ocrSuspect(text);
+  document.getElementById('layer').innerHTML='<div class="mask"><div class="sheet" style="width:min(1000px,96vw)">'+
     '<button class="x" data-close="1">×</button>'+
     '<h3>OCR 识别结果</h3>'+
-    '<div class="sm">'+esc(name)+' · 识别可能有错字，改好再生成讲评</div>'+
-    '<textarea id="ocrText" spellcheck="false" style="width:100%;height:250px;margin-top:14px;padding:12px 14px;border:1px solid var(--line);border-radius:10px;font-size:13px;line-height:1.9;outline:0;resize:vertical;background:#F7FAFE;color:var(--ink)">'+esc(text)+'</textarea>'+
+    '<div class="sm">'+esc(name)+' · 左边原图、右边文本，逐行对照改错字再生成讲评</div>'+
+    (warn?'<div class="ocr-warn">⚠ '+esc(warn)+'</div>':'')+
+    '<div class="ocr-cmp">'+
+      (img?'<div class="ocr-pic"><img src="'+img+'" alt="原图" title="点击放大 / 再点还原"></div>':'')+
+      '<textarea id="ocrText" spellcheck="false" style="width:100%;height:340px;padding:12px 14px;border:1px solid var(--line);border-radius:10px;font-size:13px;line-height:1.9;outline:0;resize:vertical;background:#F7FAFE;color:var(--ink)">'+esc(text)+'</textarea>'+
+    '</div>'+
     '<div class="row" style="margin-top:14px;justify-content:flex-end;gap:8px">'+
       '<button class="btn btn-o" data-close="1">取消</button>'+
       '<button class="btn btn-g" data-ocr-save="'+esc(name)+'">生成讲评卡片</button>'+
     '</div></div></div>';
+  const pic=document.querySelector('.ocr-pic');
+  if(pic) pic.onclick=function(){ pic.classList.toggle('big'); };
 }
 
 function htmlToText(s){
@@ -1810,7 +2079,7 @@ async function pdfText(buf){
     chunks.push(extractTextOps(txt));
   }
   const text=chunks.join('\n');
-  if(!text.trim()) throw new Error('扫描版 PDF 没有文字层，请用可复制文字的 PDF 或先转成 Word');
+  if(!text.trim()) throw new Error('这个 PDF 没有文字层（扫描件），需要走图片识别');
   return text;
 }
 
@@ -1969,6 +2238,7 @@ function doAct(a,el){
     case 'import':pickFiles();break;
     case 'ocr':pickOcr();break;
     case 'ocr-test':testOcr();break;
+    case 'ocr-test-browser':testBrowserOcr();break;
     case 'selall':{
       examList().forEach(function(o){S.sel[o.id]=true;});save();render();toast('已全选');break;
     }
@@ -2154,9 +2424,57 @@ document.addEventListener('change',function(e){
   if(e.target.id==='aiSel'){S.set.ai=e.target.value;save();return;}
   if(e.target.id==='autoSpeak'){S.set.auto=e.target.checked;save();return;}
   if(e.target.id==='apiId'){S.set.api=e.target.value;save();return;}
-  if(e.target.id==='ocrUrl'){S.set.ocrUrl=e.target.value.trim();save();return;}
+  if(e.target.id==='ocrUrl'){S.set.ocrUrl=e.target.value.trim();_ocrCap=null;save();return;}
   if(e.target.id==='ocrLang'){S.set.ocrLang=e.target.value;save();return;}
   if(e.target.id==='ocrParser'){S.set.ocrParser=e.target.value;save();return;}
+  if(e.target.id==='ocrSide'){S.set.ocrSide=e.target.value;_ocrCap=null;save();return;}
+  if(e.target.id==='ocrCls'){S.set.ocrCls=e.target.value==='1';save();return;}
+  if(e.target.id==='ocrEngine'){S.set.ocrEngine=e.target.value;_ocrCap=null;save();return;}
+});
+
+/* 截图直接粘贴：Win+Shift+S 截完不用存文件，Ctrl+V 就进来识别 */
+document.addEventListener('paste',function(e){
+  if(spell||review) return;                 /* 正在答题/复习时不抢剪贴板 */
+  const cd=e.clipboardData;
+  if(!cd) return;
+  const files=[];
+  if(cd.items){
+    for(let i=0;i<cd.items.length;i++){
+      const it=cd.items[i];
+      if(it.kind==='file'&&it.type.indexOf('image')===0){
+        const f=it.getAsFile();
+        if(f){ files.push(new File([f],'粘贴截图-'+Date.now()+'.png',{type:f.type||'image/png'})); }
+      }
+    }
+  }
+  if(files.length){
+    e.preventDefault();
+    if(view!=='exams'){ view='exams'; render(); }
+    handleFiles(files);
+  }
+});
+
+/* 文件直接拖进页面也能导入 */
+let _dragDepth=0;
+document.addEventListener('dragenter',function(e){
+  if(!e.dataTransfer||Array.prototype.indexOf.call(e.dataTransfer.types,'Files')<0) return;
+  _dragDepth++; document.body.classList.add('drag-over');
+});
+document.addEventListener('dragover',function(e){
+  if(e.dataTransfer&&Array.prototype.indexOf.call(e.dataTransfer.types,'Files')>=0) e.preventDefault();
+});
+document.addEventListener('dragleave',function(){
+  _dragDepth=Math.max(0,_dragDepth-1);
+  if(!_dragDepth) document.body.classList.remove('drag-over');
+});
+document.addEventListener('drop',function(e){
+  if(!e.dataTransfer) return;
+  const fs=e.dataTransfer.files;
+  if(!fs||!fs.length) return;
+  e.preventDefault();
+  _dragDepth=0; document.body.classList.remove('drag-over');
+  if(view!=='exams'){ view='exams'; render(); }
+  handleFiles(Array.prototype.slice.call(fs));
 });
 
 document.addEventListener('keydown',function(e){
@@ -2181,24 +2499,56 @@ document.addEventListener('keydown',function(e){
   }
 });
 
+/* 造一张写着「HELLO OCR 2026」的图，用来验证浏览器内置识别真的能出字 */
+function makeOcrTestImage(){
+  const c=document.createElement('canvas');
+  c.width=620;c.height=150;
+  const g=c.getContext('2d');
+  g.fillStyle='#fff';g.fillRect(0,0,620,150);
+  g.fillStyle='#000';g.font='bold 46px Arial';g.textBaseline='middle';
+  g.fillText('HELLO OCR 2026',28,76);
+  return c.toDataURL('image/png');
+}
+async function testBrowserOcr(){
+  const el=document.getElementById('ocrBState');
+  const set=function(t,c){ if(el){el.textContent=t;el.style.color=c||'var(--mut)';} };
+  set('加载引擎中…');
+  toast('首次测试要下载约 9MB 识别模型，请稍候…');
+  try{
+    const t=await ocrBrowser(makeOcrTestImage(),function(m){ set(String(m).slice(0,34)); });
+    const ok=/HELLO/i.test(t)&&/OCR/i.test(t);
+    set(ok?'✓ 可用 · 自测「'+String(t).replace(/\s+/g,' ').trim().slice(0,18)+'」':'✗ 结果异常',ok?'#2E7D45':'#B8442F');
+    toast(ok?'✓ 浏览器内置识别可用，换任何设备打开都能用':('自测结果：'+(t||'').slice(0,40)));
+  }catch(e){
+    set('✗ '+String(e.message||'').slice(0,42),'#B8442F');
+    toast(e.message||'内置识别不可用');
+  }
+}
 async function testOcr(){
   const el=document.getElementById('ocrState');
   if(el){el.textContent='检测中…';el.style.color='var(--mut)';}
   const url=ocrBase();
-  let t=null;
   try{
-    const ctrl=new AbortController();
-    t=setTimeout(function(){ctrl.abort();},6000);
-    const r=await fetch(url+'/api/ocr/get_options',{signal:ctrl.signal});
-    const j=await r.json();
-    clearTimeout(t);
-    const n=Object.keys(j||{}).length;
-    if(el){el.textContent='已连接 · 返回 '+n+' 个参数';el.style.color='#2E7D45';}
-    toast('Umi-OCR 已连接，可以用了');
+    _ocrCap=null;
+    const cap=await ocrCap();          /* 先验明正身：不是真 Umi-OCR 直接抛错 */
+    const j=(cap&&cap.raw)||{};
+    const n=Object.keys(j).length;
+    const opt=buildOcrOptions(cap);    /* 翻译成当前引擎真正认识的参数 */
+    const lang=opt['ocr.language']||'—（该引擎不支持切换语言）';
+    const sideKey=opt['ocr.maxSideLen']!==undefined?'ocr.maxSideLen'
+                 :(opt['ocr.limit_side_len']!==undefined?'ocr.limit_side_len':'');
+    const side=sideKey?opt[sideKey]:'—（该引擎不支持）';
+    const angKey=opt['ocr.angle']!==undefined?'ocr.angle':(opt['ocr.cls']!==undefined?'ocr.cls':'');
+    const ang=angKey?(opt[angKey]?'开':'关'):'—';
+    if(el){
+      el.textContent='✓ 真的 Umi-OCR · 语言 '+lang+' · 精度 '+side+' · 纠向 '+ang;
+      el.style.color='#2E7D45';
+      el.title='引擎返回 '+n+' 个参数；实际下发：'+JSON.stringify(opt);
+    }
+    toast('✓ 已连上 · 语言 '+lang+'，精度 '+side);
   }catch(e){
-    if(t)clearTimeout(t);
-    if(el){el.textContent='未连接 · 请启动 Umi-OCR 的 HTTP 服务';el.style.color='#B8442F';}
-    toast('连不上 '+url+'，先打开 Umi-OCR 并勾选「HTTP 服务」');
+    if(el){el.textContent='未连接 · '+String(e.message||'').slice(0,46);el.style.color='#B8442F';}
+    toast(e.message||('连不上 '+url));
   }
 }
 
