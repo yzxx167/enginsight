@@ -2269,6 +2269,42 @@ function loadTesseract(){
   });
   return _tessLoading;
 }
+/* 小图先放大：截图常常只有三四百像素宽，字高不到 12px，
+   tesseract 在这个尺寸上几乎认不出，放大到字高 30px 以上才靠谱。 */
+function loadImg(src){
+  return new Promise(function(res,rej){
+    const im=new Image();
+    im.onload=function(){res(im);};
+    im.onerror=function(){rej(new Error('图片读取失败'));};
+    im.src=src;
+  });
+}
+async function upscaleSmall(dataUrl){
+  let im;
+  try{ im=await loadImg(dataUrl); }catch(e){ return dataUrl; }
+  const minW=1100,minH=150;
+  if(im.width>=minW&&im.height>=minH) return dataUrl;
+  const sc=Math.min(4,Math.max(minW/im.width,minH/im.height));
+  if(sc<=1) return dataUrl;
+  const c=document.createElement('canvas');
+  c.width=Math.round(im.width*sc); c.height=Math.round(im.height*sc);
+  const g=c.getContext('2d');
+  g.imageSmoothingEnabled=true;
+  if('imageSmoothingQuality' in g) g.imageSmoothingQuality='high';
+  g.fillStyle='#fff'; g.fillRect(0,0,c.width,c.height);
+  g.drawImage(im,0,0,c.width,c.height);
+  return c.toDataURL('image/png');
+}
+/* 中文模型会在每个汉字之间插空格，这里收拾干净；英文单词之间的空格保持不动 */
+function tidyOcr(s){
+  return String(s||'')
+    .replace(/([\u4e00-\u9fff])\s+(?=[\u4e00-\u9fff])/g,'$1')
+    .replace(/\s*([，。、；：？！）】」』》])\s*/g,'$1')
+    .replace(/\s*([（【「『《])\s*/g,'$1')
+    .replace(/[ \t]+\n/g,'\n')
+    .replace(/\n{3,}/g,'\n\n')
+    .trim();
+}
 async function ocrBrowser(dataUrl,onProgress){
   if(location.protocol==='file:'){
     throw new Error('本地文件方式下浏览器识别不可用（Worker 受限制），请启动 Umi-OCR，或部署到网上使用');
@@ -2276,20 +2312,22 @@ async function ocrBrowser(dataUrl,onProgress){
   const T=await loadTesseract();
   if(!_tess){
     _tessProg=onProgress;
-    _tess=await T.createWorker('eng',1,{
+    /* 中英双语：chi_sim 让中文题干不再变成乱码英文 */
+    _tess=await T.createWorker('eng+chi_sim',1,{
       workerPath:ocrAsset('worker.min.js'),
       corePath:ocrAsset(''),
       langPath:ocrAsset('tessdata'),
       logger:function(m){
         if(_tessProg&&m&&m.status==='loading tesseract core') _tessProg('正在加载识别引擎…');
-        else if(_tessProg&&m&&m.status==='loading language traineddata') _tessProg('首次使用，正在下载语言模型…');
+        else if(_tessProg&&m&&m.status==='loading language traineddata') _tessProg('首次使用，正在下载语言模型（英文 + 中文，约 4.5MB）…');
         else if(_tessProg&&m&&m.status==='recognizing text') _tessProg('识别中… '+Math.round((m.progress||0)*100)+'%');
       }
     });
   }
   _tessProg=onProgress;
-  const r=await _tess.recognize(dataUrl);
-  return String((r&&r.data&&r.data.text)||'').trim();
+  const ready=await upscaleSmall(dataUrl);
+  const r=await _tess.recognize(ready);
+  return tidyOcr((r&&r.data&&r.data.text)||'');
 }
 
 /* 统一入口：按设置决定用哪个引擎，auto 自动降级 */
@@ -2365,7 +2403,7 @@ function openOcrReview(name,text,img){
   document.getElementById('layer').innerHTML='<div class="mask"><div class="sheet" style="width:min(1000px,96vw)">'+
     '<button class="x" data-close="1">×</button>'+
     '<h3>OCR 识别结果</h3>'+
-    '<div class="sm">'+esc(name)+' · 左边原图、右边文本，逐行对照改错字再生成讲评</div>'+
+    '<div class="sm">'+esc(name)+' · 左图右文对照改错字。填空的空档 OCR 不会保留，请在下面用 <b>___</b> 补上</div>'+
     (warn?'<div class="ocr-warn">⚠ '+esc(warn)+'</div>':'')+
     '<div class="ocr-cmp">'+
       (img?'<div class="ocr-pic"><img src="'+img+'" alt="原图" title="点击放大 / 再点还原"></div>':'')+
@@ -2852,6 +2890,7 @@ document.addEventListener('paste',function(e){
   if(spell||review) return;                 /* 正在答题/复习时不抢剪贴板 */
   const cd=e.clipboardData;
   if(!cd) return;
+  const inField=/^(INPUT|TEXTAREA)$/.test((e.target&&e.target.tagName)||'');
   const files=[];
   if(cd.items){
     for(let i=0;i<cd.items.length;i++){
@@ -2862,10 +2901,20 @@ document.addEventListener('paste',function(e){
       }
     }
   }
+  /* 有些截图工具不写 items，只写 files，这里兜底 */
+  if(!files.length&&cd.files&&cd.files.length){
+    for(let i=0;i<cd.files.length;i++){
+      const f=cd.files[i];
+      if(f.type&&f.type.indexOf('image')===0) files.push(f);
+    }
+  }
   if(files.length){
     e.preventDefault();
     if(view!=='exams'){ view='exams'; render(); }
+    toast('已收到截图（'+Math.round(files[0].size/1024)+'KB），正在识别…');
     handleFiles(files);
+  }else if(!inField&&cd.types&&Array.prototype.indexOf.call(cd.types,'text/plain')<0){
+    toast('剪贴板里没有图片。先用 Win+Shift+S 截图，再回来按 Ctrl+V');
   }
 });
 
