@@ -1912,13 +1912,51 @@ function vSettings(){
     '<div class="card set-block"><h4><i></i>数据</h4>'+
       '<div class="set-line"><span class="k">词条</span><span class="v">'+ALL().length+' 条（必修一 + 必修二，源自课本词表）</span></div>'+
       '<div class="set-line"><span class="k">学习记录</span><span class="v">待复习 '+st.todo+' · 已掌握 '+st.known+' · 简单词 '+st.easy+'</span></div>'+
-      '<div class="set-line"><span class="k">存储位置</span><span class="v" style="font-size:11.5px;color:var(--mut)">浏览器 localStorage（仅本机）</span></div>'+
+      '<div class="set-line"><span class="k">存储位置</span><span class="v" style="font-size:11.5px;color:var(--mut)">浏览器 localStorage（仅本机，按网址隔离）</span></div>'+
+      '<div class="set-line"><span class="k">备份</span><span class="v">'+
+        '<button class="fsbtn" data-act="exp-backup">导出备份文件</button>'+
+        '<button class="fsbtn" data-act="imp-backup">导入备份</button>'+
+        '<span style="font-size:11.5px;color:var(--mut);margin-left:8px">离线版和线上版是两个存储桶，搬运数据靠这个</span></span></div>'+
       '<div class="set-line"><span class="k">清空记录</span><span class="v"><button class="fsbtn" data-act="clear">清空学习记录</button></span></div>'+
     '</div>'+
   '</div>';
 }
 
 /* ========== 复习弹层 ========== */
+function doBackupExport(){
+  const pack={app:'enginsight-b12',ver:2,at:new Date().toISOString(),data:S};
+  const txt=JSON.stringify(pack,null,1);
+  let url='';
+  try{ url=URL.createObjectURL(new Blob([txt],{type:'application/json'})); }catch(e){ toast('导出失败：'+e.message); return; }
+  const a=document.createElement('a');
+  a.href=url;
+  a.download='高一英语备份-'+today()+'.json';
+  document.body.appendChild(a);
+  a.click();
+  setTimeout(function(){ try{URL.revokeObjectURL(url);a.remove();}catch(e){} },1500);
+  toast('已导出：'+(S.bank||[]).length+' 道题 / '+(S.papers||[]).length+' 份讲评');
+}
+function doBackupImport(file){
+  const fr=new FileReader();
+  fr.onerror=function(){ toast('读不了这个文件'); };
+  fr.onload=function(){
+    let pack;
+    try{ pack=JSON.parse(String(fr.result)); }catch(e){ toast('不是有效的备份文件（JSON 解析失败）'); return; }
+    const d=pack&&pack.data?pack.data:pack;
+    if(!d||typeof d!=='object'||!d.set||(!d.bank&&!d.papers&&!d.lv)){
+      toast('这不是本平台的备份文件');return;
+    }
+    const nb=(d.bank||[]).length, np=(d.papers||[]).length;
+    if(!window.confirm('导入会覆盖当前全部数据（现有 '+(S.bank||[]).length+' 道题、'+(S.papers||[]).length+' 份讲评）。\n'+
+                       '备份里有 '+nb+' 道题、'+np+' 份讲评。确定导入？')) return;
+    S=Object.assign(JSON.parse(JSON.stringify(DEF)),d);
+    if(!S.set||typeof S.set!=='object') S.set=JSON.parse(JSON.stringify(DEF.set));
+    view=S.view||'exams';
+    applySet();save();render();
+    toast('导入完成：'+nb+' 道题 / '+np+' 份讲评');
+  };
+  fr.readAsText(file);
+}
 function startReview(list){
   if(!list.length){toast('这一范围内没有待复习的词');return;}
   review={list:list.slice(),i:0,shown:false};
@@ -2280,7 +2318,12 @@ function loadTesseract(){
     const s=document.createElement('script');
     s.src=ocrAsset('tesseract.min.js');
     s.onload=function(){ window.Tesseract?res(window.Tesseract):rej(new Error('OCR 引擎加载异常')); };
-    s.onerror=function(){ _tessLoading=null; rej(new Error('OCR 引擎加载失败：找不到 ocr/tesseract.min.js')); };
+    s.onerror=function(){
+      _tessLoading=null;
+      const u=s.src||'';
+      try{ s.remove(); }catch(e){}
+      rej(new Error('OCR 引擎加载失败，取不到：'+u+'（可能是断网，或页面被嵌入环境限制加载外部脚本）'));
+    };
     document.head.appendChild(s);
   });
   return _tessLoading;
@@ -2720,6 +2763,13 @@ function doAct(a,el){
     case 'clear':{
       if(!window.confirm('清空所有学习记录（掌握状态与生词本）？'))return;
       S.lv={};S.star={};save();render();toast('学习记录已清空');break;
+    }
+    case 'exp-backup':doBackupExport();break;
+    case 'imp-backup':{
+      const bi=document.createElement('input');
+      bi.type='file';bi.accept='.json,application/json';
+      bi.onchange=function(){ if(bi.files&&bi.files[0]) doBackupImport(bi.files[0]); };
+      bi.click();break;
     }
     case 'test':{
       refreshVoices();
